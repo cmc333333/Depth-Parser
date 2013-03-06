@@ -2,7 +2,7 @@ import re
 import string
 
 pt_file = open('205.14.txt')
-pt = pt_file.read()
+pt = pt_file.read().strip()
 pt_file.close()
 
 def roman_nums(max_value=False):
@@ -37,14 +37,15 @@ levels = [
 def find_section_label(text, level, section):
     if len(levels) <= level or len(levels[level]) <= section:
         return None
-    return re.search(r"\(%s\)" % levels[level][section], text)
+    return re.search(r"(?<![\)\d])\(%s\)" % levels[level][section], text, 
+            re.MULTILINE)
 
 def section_body_rest(text, level, section):
     match = find_section_label(text, level, section + 1)
     if match:
-        return (text[:match.start()], text[match.start():])
+        return (text[:match.start()].strip(), text[match.start():].strip())
     else:
-        return (text, "")
+        return (text.strip(), "")
     
 def split_into_sections(text, level=0, section=0):
     match = find_section_label(text, level, section)
@@ -54,32 +55,7 @@ def split_into_sections(text, level=0, section=0):
     else:
         return []
     
-x = split_into_sections(pt, 0, 0)
-print len(x)
-for i in range(len(x)):
-    print x[i]
-    print "\n\n"
-
-"""
-def parse(text, level = 0, index = 0):
-    #   first, check if one up the parent layers has ended
-    for l in range(level - 1):
-
-
-    match = re.search(r"\(%s\)" % levels[level][index], text)
-    if 
-    print match.group(), match.start(), match.end()
-
-parse(pt)
-parse(pt, index = 2)
-parse(pt, 2, 1)
-
-
-lower_alpha = r"\(([a-z])\)"
-
-def parse(txt):
-
-
-matches = re.search(lower_alpha, pt)
-print matches.group(), matches.start(), matches.end()
-"""
+for section in split_into_sections(pt):
+    for subsection in split_into_sections(section, 1):
+        for subsubsection in split_into_sections(subsection, 2):
+            print len(split_into_sections(subsubsection, 3))
