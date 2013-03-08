@@ -37,8 +37,12 @@ levels = [
 def find_section_label(text, level, section):
     if len(levels) <= level or len(levels[level]) <= section:
         return None
-    return re.search(r"(?<![\)\d])\(%s\)" % levels[level][section], text, 
-            re.MULTILINE)
+    #   
+    return re.search(r"""(?<!           # Negative Look Behind
+                                [\)\d]  # For ')' or a digit
+                            )\(%s\)     # Then the label in parens
+                        """ % levels[level][section], text, 
+                        re.MULTILINE | re.VERBOSE)
 
 def section_body_rest(text, level, section):
     match = find_section_label(text, level, section + 1)
@@ -46,7 +50,11 @@ def section_body_rest(text, level, section):
         return (text[:match.start()].strip(), text[match.start():].strip())
     else:
         return (text.strip(), "")
-    
+
+def section_text(text, level, section):
+    (text_all, _) = section_body_rest(text, level, section)
+    return section_body_rest(text_all, level + 1, -1)[0]
+
 def split_into_sections(text, level=0, section=0):
     match = find_section_label(text, level, section)
     if match:
@@ -54,8 +62,22 @@ def split_into_sections(text, level=0, section=0):
         return [body] + split_into_sections(rest, level, section+1)
     else:
         return []
+
+def section_html(text, level=0):
+    html = "<ol>" + section_text(text, level-1, 0)
+    for subsection in split_into_sections(text, level):
+        html += "<li>" + section_html(subsection, level+1) + "</li>"
+    html += "</ol>"
+    return html
     
+#print len(split_into_sections(pt))
 for section in split_into_sections(pt):
+    print split_into_sections(section, 1)
+    #print len(split_into_sections(section, 1))
     for subsection in split_into_sections(section, 1):
+        #print len(split_into_sections(subsection, 2))
         for subsubsection in split_into_sections(subsection, 2):
+            #pass
             print len(split_into_sections(subsubsection, 3))
+
+#print "<ol>" + section_text(pt, -1, 0) + section_html(pt, 1) + "</ol>"
