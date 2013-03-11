@@ -30,4 +30,12 @@ to_check = ["§§ 205.7, 205.8, and 205.9", "§ 205.9(b)", "§ 205.9(a)",
     ]
 
 for tc in to_check:
-    print tc, any_citation.parseString(tc)
+    for token, start, end in any_citation.scanString(tc):
+        continue
+        print tc, token, start, end
+
+pt_file = open('rege.txt')
+pt = pt_file.read().strip()
+pt_file.close()
+for _, start, end in any_citation.scanString(pt):
+    print pt[start:end]
