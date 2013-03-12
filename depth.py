@@ -23,3 +23,14 @@ def find_start(text, level, idx, exclude = []):
             if all([m < e[0] or m > e[1]  for e in exclude])]
     if match_starts:
         return match_starts[0]
+
+def section_offsets(text, level, idx, exclude = []):
+    """Find the start/end of the requested label. Assumes the text does not
+    just up a level -- see @TODO@ below."""
+    start = find_start(text, level, idx, exclude)
+    end = find_start(text, level, idx + 1, exclude)
+    if start == None:
+        return None
+    if end == None:
+        end = len(text)
+    return (start, end)
