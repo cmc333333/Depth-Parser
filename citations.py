@@ -39,8 +39,20 @@ to_check = [
 for word, length in to_check:
     assert(length == len(any_citation.parseString(word)))
 
+def internal_citations(plain_text):
+    """
+    Return a list of pairs representing the start and end positions of
+    internal_citations.
+    """
+    citations = []
+    for _, start, end in any_citation.scanString(plain_text):
+        citations.append((start,end))
+    return citations
+
+"""
 pt_file = open('rege.txt')
 pt = pt_file.read().strip()
 pt_file.close()
-for _, start, end in any_citation.scanString(pt):
+for start, end in internal_citations(pt):
     print pt[start:end]
+"""
