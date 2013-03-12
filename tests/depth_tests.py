@@ -43,4 +43,49 @@ class DepthTest(TestCase):
         self.assertEqual(None, depth.section_offsets(text, 0, 3))
         self.assertEqual(None, depth.section_offsets(text, 1, 0))
         self.assertEqual(None, depth.section_offsets(text, 2, 0))
+    def test_sections(self):
+        """This method should pull out the relevant sections, as a list"""
+        text = "This (a) is a good (1) test (2) of (3) some (b) body."
+        sections = depth.sections(text,0)
+        section_strings = [text[s[0]:s[1]] for s in sections]
+        self.assertEqual(section_strings,
+                ["(a) is a good (1) test (2) of (3) some ",
+                    "(b) body."])
 
+        text = "(a) is a good (1) test (2) of (3) some "
+        sections = depth.sections(text,1)
+        section_strings = [text[s[0]:s[1]] for s in sections]
+        self.assertEqual(section_strings,
+                ["(1) test ", "(2) of ", "(3) some "])
+
+        sections = depth.sections(text,2)
+        section_strings = [text[s[0]:s[1]] for s in sections]
+        self.assertEqual(section_strings, [])
+
+    def test_build_section_tree(self):
+        """Verify several section trees."""
+        text = "This (a) is a good (1) test (2) of (3) some (b) body."
+        self.assertEqual(depth.build_section_tree(text),
+                {
+                    "text": "This ",
+                    "children": [
+                        {
+                            "text": " is a good ",
+                            "children": [
+                                {
+                                    "text": " test ",
+                                    "children": []
+                                }, {
+                                    "text": " of ",
+                                    "children": []
+                                }, {
+                                    "text": " some ",
+                                    "children": []
+                                }
+                            ]
+                        }, {
+                            "text": " body.",
+                            "children": []
+                        }
+                    ]
+                })

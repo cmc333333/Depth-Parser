@@ -34,3 +34,32 @@ def section_offsets(text, level, idx, exclude = []):
     if end == None:
         end = len(text)
     return (start, end)
+
+def sections(text, level, exclude = []):
+    """Return a list of section offsets defined by the level param."""
+    sects = []
+    idx = 0
+    offsets = section_offsets(text, level, idx, exclude)
+    while offsets:
+        sects.append(offsets)
+        idx += 1
+        offsets = section_offsets(text, level, idx, exclude)
+    return sects
+
+
+def build_section_tree(text, level = 0, exclude = []):
+    """Build a dict to represent the text hierarchy."""
+    subsections = sections(text, level, exclude)
+    if subsections:
+        body_text = text[0:subsections[0][0]]
+    else:
+        body_text = text
+    if body_text.startswith('('):
+        body_text = body_text[body_text.find(')')+1:]
+
+    children = [build_section_tree(text[c[0]:c[1]], level + 1, 
+        [(e[0] + c[0], e[1] + c[0]) for e in exclude]) for c in subsections]
+    return {
+            "text": body_text,
+            "children": children
+            }
