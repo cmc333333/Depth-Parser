@@ -31,41 +31,41 @@ class DepthTest(TestCase):
         self.assertEqual(39, depth.find_start(text, 0, 0, [(5,7), (10,
             25)]))
         self.assertEqual(None, depth.find_start(text, 0, 0, [(0,len(text))]))
-    def test_section_offsets_present(self):
+    def test_paragraph_offsets_present(self):
         """Test that section_offsets works as expected for good input."""
         text = "This (a) is a good (b) test for (c) something like this."""
-        self.assertEqual((5,19), depth.section_offsets(text, 0, 0))
-        self.assertEqual((19,32), depth.section_offsets(text, 0, 1))
-        self.assertEqual((32,len(text)), depth.section_offsets(text, 0, 2))
-    def test_section_offsets_not_present(self):
+        self.assertEqual((5,19), depth.paragraph_offsets(text, 0, 0))
+        self.assertEqual((19,32), depth.paragraph_offsets(text, 0, 1))
+        self.assertEqual((32,len(text)), depth.paragraph_offsets(text, 0, 2))
+    def test_paragraph_offsets_not_present(self):
         """Verify we get None when the searched for text isn't there."""
         text = "This (a) is a good (b) test for (c) something like this."""
-        self.assertEqual(None, depth.section_offsets(text, 0, 3))
-        self.assertEqual(None, depth.section_offsets(text, 1, 0))
-        self.assertEqual(None, depth.section_offsets(text, 2, 0))
-    def test_sections(self):
-        """This method should pull out the relevant sections, as a list"""
+        self.assertEqual(None, depth.paragraph_offsets(text, 0, 3))
+        self.assertEqual(None, depth.paragraph_offsets(text, 1, 0))
+        self.assertEqual(None, depth.paragraph_offsets(text, 2, 0))
+    def test_paragraphs(self):
+        """This method should pull out the relevant paragraphs, as a list"""
         text = "This (a) is a good (1) test (2) of (3) some (b) body."
-        sections = depth.sections(text,0)
-        section_strings = [text[s[0]:s[1]] for s in sections]
-        self.assertEqual(section_strings,
+        paragraphs = depth.paragraphs(text,0)
+        paragraph_strings = [text[s[0]:s[1]] for s in paragraphs]
+        self.assertEqual(paragraph_strings,
                 ["(a) is a good (1) test (2) of (3) some ",
                     "(b) body."])
 
         text = "(a) is a good (1) test (2) of (3) some "
-        sections = depth.sections(text,1)
-        section_strings = [text[s[0]:s[1]] for s in sections]
-        self.assertEqual(section_strings,
+        paragraphs = depth.paragraphs(text,1)
+        paragraph_strings = [text[s[0]:s[1]] for s in paragraphs]
+        self.assertEqual(paragraph_strings,
                 ["(1) test ", "(2) of ", "(3) some "])
 
-        sections = depth.sections(text,2)
-        section_strings = [text[s[0]:s[1]] for s in sections]
-        self.assertEqual(section_strings, [])
+        paragraphs = depth.paragraphs(text,2)
+        paragraph_strings = [text[s[0]:s[1]] for s in paragraphs]
+        self.assertEqual(paragraph_strings, [])
 
-    def test_build_section_tree(self):
-        """Verify several section trees."""
+    def test_build_paragraph_tree(self):
+        """Verify several paragraph trees."""
         text = "This (a) is a good (1) test (2) of (3) some (b) body."
-        self.assertEqual(depth.build_section_tree(text),
+        self.assertEqual(depth.build_paragraph_tree(text),
                 {
                     "text": "This ",
                     "label": {"text": "", "parts": []},
@@ -104,12 +104,12 @@ class DepthTest(TestCase):
                         }
                     ]
                 })
-    def test_build_section_tree_exclude(self):
-        """Section tree should not split on exclude areas."""
+    def test_build_paragraph_tree_exclude(self):
+        """Paragraph tree should not split on exclude areas."""
         ref = "Ref (b)(2)"
         text = "This (a) is a good (1) %s test (2) no?" % ref
         ref_pos = text.find(ref)
-        self.assertEqual(depth.build_section_tree(text, 
+        self.assertEqual(depth.build_paragraph_tree(text, 
             exclude=[(ref_pos,ref_pos+len(ref))]),
                 {
                     "text": "This ",
@@ -138,10 +138,10 @@ class DepthTest(TestCase):
                         }
                     ]
                 })
-    def test_build_section_tree_label_preamble(self):
-        """Section tree's labels can be prepended."""
+    def test_build_paragraph_tree_label_preamble(self):
+        """Paragraph tree's labels can be prepended."""
         text = "This (a) is a good (1) test (2) of (3) some (b) body."
-        tree = depth.build_section_tree(text, 
+        tree = depth.build_paragraph_tree(text, 
                 label={"text": "205.14", "parts": ["205", "14"]})
         self.assertEqual("205.14", tree['label']['text'])
         self.assertEqual(["205", "14"], tree['label']['parts'])
