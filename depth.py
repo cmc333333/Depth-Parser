@@ -5,7 +5,7 @@ from utils import roman_nums
 
 levels = [
         list(string.ascii_lowercase),
-        list(range(1,51)),
+        [str(i) for i in range(1,51)],
         list(itertools.islice(roman_nums(), 0, 50)),
         list(string.ascii_uppercase)
         ]
@@ -46,8 +46,8 @@ def sections(text, level, exclude = []):
         offsets = section_offsets(text, level, idx, exclude)
     return sects
 
-
-def build_section_tree(text, level = 0, exclude = []):
+def build_section_tree(text, level = 0, exclude = [], 
+        label = {"text": "", "parts": []}):
     """Build a dict to represent the text hierarchy."""
     subsections = sections(text, level, exclude)
     if subsections:
@@ -55,9 +55,18 @@ def build_section_tree(text, level = 0, exclude = []):
     else:
         body_text = text
 
-    children = [build_section_tree(text[c[0]:c[1]], level + 1, 
-        [(e[0] - c[0], e[1] - c[0]) for e in exclude]) for c in subsections]
+    children = []
+    for idx, (start,end) in enumerate(subsections):
+        new_text = text[start:end]
+        new_excludes = [(e[0] - start, e[1] - start) for e in exclude]
+        new_label = {
+                'text': label['text'] + '(' + levels[level][idx] + ')',
+                'parts': label['parts'] + [levels[level][idx]]
+                }
+        children.append(build_section_tree(new_text, level + 1,
+            new_excludes, new_label))
     return {
             "text": body_text,
-            "children": children
+            "children": children,
+            "label": label
             }
