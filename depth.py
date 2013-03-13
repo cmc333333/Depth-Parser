@@ -1,3 +1,5 @@
+# vim: set fileencoding=utf-8 :
+
 import itertools
 import re
 import string
@@ -27,8 +29,8 @@ def find_paragraph_start(text, p_level, paragraph, exclude = []):
         return match_starts[0]
 
 def paragraph_offsets(text, p_level, paragraph, exclude = []):
-    """Find the start/end of the requested label. Assumes the text does not
-    just up a p_level -- see build_paragraph_tree below."""
+    """Find the start/end of the requested paragraph. Assumes the text does 
+    not just up a p_level -- see build_paragraph_tree below."""
     start = find_paragraph_start(text, p_level, paragraph, exclude)
     end = find_paragraph_start(text, p_level, paragraph + 1, exclude)
     if start == None:
@@ -39,14 +41,14 @@ def paragraph_offsets(text, p_level, paragraph, exclude = []):
 
 def paragraphs(text, p_level, exclude = []):
     """Return a list of paragraph offsets defined by the level param."""
-    sects = []
+    paragraphs = []
     paragraph = 0
     offsets = paragraph_offsets(text, p_level, paragraph, exclude)
     while offsets:
-        sects.append(offsets)
+        paragraphs.append(offsets)
         paragraph += 1
         offsets = paragraph_offsets(text, p_level, paragraph, exclude)
-    return sects
+    return paragraphs
 
 def build_paragraph_tree(text, p_level = 0, exclude = [], 
         label = {"text": "", "parts": []}):
@@ -73,3 +75,41 @@ def build_paragraph_tree(text, p_level = 0, exclude = [],
             "children": children,
             "label": label
             }
+
+def find_section_start(text, part, section):
+    """Find the start of the next section (e.g. 205.14)"""
+    match = re.search(r'^%s %d\.%d' % (u"§", part, section), text, 
+            re.MULTILINE)
+    if match:
+        return match.start()
+
+def find_appendix_start(text, appendix):
+    """Find the start of the appendix (e.g. Appendix A)"""
+    match = re.search(r'^Appendix %s' % appendix, text, re.MULTILINE)
+    if match:
+        return match.start()
+
+def section_offsets(text, part, section):
+    """Find the start/end of the requested section"""
+    start = find_section_start(text, part, section)
+    next_section = find_section_start(text, part, section + 1)
+    start_appendix = find_appendix_start(text, 'A')
+    if start == None:
+        return None
+    end = next_section
+    if end == None:
+        end = start_appendix
+    if end == None:
+        end = len(text)
+    return (start, end)
+
+def sections(text, part):
+    """Return a list of section offsets. Does not include appendices."""
+    sections = []
+    section = 1
+    offsets = section_offsets(text, part, section)
+    while offsets:
+        sections.append(offsets)
+        section += 1
+        offsets = section_offsets(text, part, section)
+    return sections
