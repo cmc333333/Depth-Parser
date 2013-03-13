@@ -12,7 +12,7 @@ _p_levels = [
         #   handling that yet
         ]
 
-def find_start(text, p_level, paragraph, exclude = []):
+def find_paragraph_start(text, p_level, paragraph, exclude = []):
     """Find the position for the start of the requested label. p_Level is one
     of 0,1,2,3; paragraph is the index within that label. Return None if not
     present. Does not return results in the exclude list (a list of
@@ -29,8 +29,8 @@ def find_start(text, p_level, paragraph, exclude = []):
 def paragraph_offsets(text, p_level, paragraph, exclude = []):
     """Find the start/end of the requested label. Assumes the text does not
     just up a p_level -- see build_paragraph_tree below."""
-    start = find_start(text, p_level, paragraph, exclude)
-    end = find_start(text, p_level, paragraph + 1, exclude)
+    start = find_paragraph_start(text, p_level, paragraph, exclude)
+    end = find_paragraph_start(text, p_level, paragraph + 1, exclude)
     if start == None:
         return None
     if end == None:
