@@ -54,8 +54,6 @@ def build_section_tree(text, level = 0, exclude = []):
         body_text = text[0:subsections[0][0]]
     else:
         body_text = text
-    if body_text.startswith('('):
-        body_text = body_text[body_text.find(')')+1:]
 
     children = [build_section_tree(text[c[0]:c[1]], level + 1, 
         [(e[0] - c[0], e[1] - c[0]) for e in exclude]) for c in subsections]

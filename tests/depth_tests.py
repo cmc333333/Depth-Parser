@@ -70,22 +70,46 @@ class DepthTest(TestCase):
                     "text": "This ",
                     "children": [
                         {
-                            "text": " is a good ",
+                            "text": "(a) is a good ",
                             "children": [
                                 {
-                                    "text": " test ",
+                                    "text": "(1) test ",
                                     "children": []
                                 }, {
-                                    "text": " of ",
+                                    "text": "(2) of ",
                                     "children": []
                                 }, {
-                                    "text": " some ",
+                                    "text": "(3) some ",
                                     "children": []
                                 }
                             ]
                         }, {
-                            "text": " body.",
+                            "text": "(b) body.",
                             "children": []
+                        }
+                    ]
+                })
+    def test_build_section_tree_exclude(self):
+        """Section tree should not split on exclude areas."""
+        ref = "Ref (b)(2)"
+        text = "This (a) is a good (1) %s test (2) no?" % ref
+        ref_pos = text.find(ref)
+        self.assertEqual(depth.build_section_tree(text, 
+            exclude=[(ref_pos,ref_pos+len(ref))]),
+                {
+                    "text": "This ",
+                    "children": [
+                        {
+                            "text": "(a) is a good ",
+                            "children": [
+                                {
+                                    "text": "(1) %s test " % ref,
+                                    "children": []
+                                }, {
+                                    "text": "(2) no?",
+                                    "children": []
+                                }
+                            ]
                         }
                     ]
                 })
