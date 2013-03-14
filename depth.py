@@ -1,5 +1,6 @@
 # vim: set fileencoding=utf-8 :
 
+import citations
 import itertools
 import re
 import string
@@ -50,8 +51,17 @@ def paragraphs(text, p_level, exclude = []):
         offsets = paragraph_offsets(text, p_level, paragraph, exclude)
     return paragraphs
 
+def _label(text, parts, title=None):
+    if title:
+        return {'text': text, 'parts': parts, 'title': title}
+    return {'text': text, 'parts': parts}
+def _extend_label(existing, text, part):
+    return _label(existing['text'] + text, existing['parts'] + [part])
+def _node(text='', children=[], label=_label('',[])):
+    return {'text': text, 'children': children, 'label': label}
+
 def build_paragraph_tree(text, p_level = 0, exclude = [], 
-        label = {"text": "", "parts": []}):
+        label = _label("", [])):
     """Build a dict to represent the text hierarchy."""
     subparagraphs = paragraphs(text, p_level, exclude)
     if subparagraphs:
@@ -63,18 +73,13 @@ def build_paragraph_tree(text, p_level = 0, exclude = [],
     for paragraph, (start,end) in enumerate(subparagraphs):
         new_text = text[start:end]
         new_excludes = [(e[0] - start, e[1] - start) for e in exclude]
-        new_label = {
-                'text': (label['text'] + '(' + _p_levels[p_level][paragraph] 
-                    + ')'),
-                'parts': label['parts'] + [_p_levels[p_level][paragraph]]
-                }
+        new_label = _extend_label(label, 
+            '(' + _p_levels[p_level][paragraph] + ')',
+            _p_levels[p_level][paragraph]
+            )
         children.append(build_paragraph_tree(new_text, p_level + 1,
             new_excludes, new_label))
-    return {
-            "text": body_text,
-            "children": children,
-            "label": label
-            }
+    return _node(body_text, children, label)
 
 def _find_start(text, heading, index):
     """Find the start of an appendix, supplement, etc."""
@@ -130,3 +135,34 @@ def sections(text, part):
         remaining_text = remaining_text[begin + 1:]
         offsets = next_section_offsets(remaining_text, part)
     return sections
+
+def build_section_tree(text, part):
+    """Construct the tree for a whole section. Assumes the section starts
+    with an identifier"""
+    title = text[:text.find("\n")]
+    text = text[len(title):]
+    section = re.search(r'%d\.(\d+) ' % part, title).group(1)
+
+    exclude = citations.internal_citations(text)
+    label = _label("%d.%s" % (part, section), [str(part), section])
+    tree = build_paragraph_tree(text, exclude=exclude, label=label)
+
+    tree['label']['title'] = title
+    return tree
+
+def build_regulation_tree(text, part):
+    """Build up the whole tree from the plain text of a single
+    regulation."""
+    sects = sections(text, part)
+    if not sects:
+        return _node(text)
+
+    title = text[:text.find("\n")]
+    label = _label(str(part), [str(part)], title)
+    body_text = text[len(title):sects[0][0]]
+
+    children = []
+    for start,end in sects:
+        section_text = text[start:end]
+        children.append(build_section_tree(section_text, part))
+    return _node(body_text, children, label)
