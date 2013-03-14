@@ -76,29 +76,42 @@ def build_paragraph_tree(text, p_level = 0, exclude = [],
             "label": label
             }
 
-def find_section_start(text, part, section):
+def _find_start(text, heading, index):
+    """Find the start of an appendix, supplement, etc."""
+    match = re.search(r'^%s %s' % (heading, index), text, re.MULTILINE)
+    if match:
+        return match.start()
+
+def find_next_section_start(text, part):
     """Find the start of the next section (e.g. 205.14)"""
-    match = re.search(r'^%s %d\.%d' % (u"§", part, section), text, 
-            re.MULTILINE)
-    if match:
-        return match.start()
+    return _find_start(text, u"§", str(part) + r"\.\d+")
 
-def find_appendix_start(text, appendix):
+def find_appendix_start(text, appendix='A'):
     """Find the start of the appendix (e.g. Appendix A)"""
-    match = re.search(r'^Appendix %s' % appendix, text, re.MULTILINE)
-    if match:
-        return match.start()
+    return _find_start(text, 'Appendix', appendix)
 
-def section_offsets(text, part, section):
-    """Find the start/end of the requested section"""
-    start = find_section_start(text, part, section)
-    next_section = find_section_start(text, part, section + 1)
-    start_appendix = find_appendix_start(text, 'A')
+def find_supplement_start(text, supplement='I'):
+    """Find the start of the supplement (e.g. Supplement I)"""
+    return _find_start(text, 'Supplement', supplement)
+
+def next_section_offsets(text, part):
+    """Find the start/end of the next section"""
+    start = find_next_section_start(text, part)
     if start == None:
         return None
+    post_start_text = text[start+1:]
+    next_section = find_next_section_start(post_start_text, part)
+    if next_section:
+        next_section += start + 1
+
+    start_appendix = find_appendix_start(text, 'A')
+    start_supplement = find_supplement_start(text)
+
     end = next_section
     if end == None:
         end = start_appendix
+    if end == None:
+        end = start_supplement
     if end == None:
         end = len(text)
     return (start, end)
@@ -106,10 +119,14 @@ def section_offsets(text, part, section):
 def sections(text, part):
     """Return a list of section offsets. Does not include appendices."""
     sections = []
-    section = 1
-    offsets = section_offsets(text, part, section)
+    remaining_text = text
+    text_offset = 0
+    offsets = next_section_offsets(remaining_text, part)
     while offsets:
-        sections.append(offsets)
-        section += 1
-        offsets = section_offsets(text, part, section)
+        begin,end = offsets
+        sections.append((begin+text_offset, end+text_offset))
+        text_offset += begin + 1
+
+        remaining_text = remaining_text[begin + 1:]
+        offsets = next_section_offsets(remaining_text, part)
     return sections

@@ -1,3 +1,5 @@
+# vim: set fileencoding=utf-8 :
+
 from unittest import TestCase
 import depth
 
@@ -160,3 +162,21 @@ class DepthTest(TestCase):
         self.assertEqual(["205", "14", "a", "3"], child_a_3['label']['parts'])
         self.assertEqual("205.14(b)", child_b['label']['text'])
         self.assertEqual(["205", "14", "b"], child_b['label']['parts'])
+    def test_find_next_section_start(self):
+        text = u"\n\nSomething\n§ 205.3 thing\n\n§ 205.4 Something\n§ 203.19"
+        self.assertEqual(12, depth.find_next_section_start(text, 205))
+        self.assertEqual(None, depth.find_next_section_start(text, 204))
+        self.assertEqual(45, depth.find_next_section_start(text, 203))
+    def test_find_appendix_start(self):
+        text = "Some \nAppendix C Other\n\n Thing Appendix A\nAppendix B"
+        self.assertEqual(None, depth.find_appendix_start(text))
+        self.assertEqual(None, depth.find_appendix_start(text, 'A'))
+        self.assertEqual(42, depth.find_appendix_start(text, 'B'))
+        self.assertEqual(6, depth.find_appendix_start(text, 'C'))
+    def test_find_supplement_start(self):
+        text = "Supplement A S\nOther\nSupplement I Thing\nXX Supplement C Q"
+        self.assertEqual(21, depth.find_supplement_start(text))
+        self.assertEqual(21, depth.find_supplement_start(text, 'I'))
+        self.assertEqual(0, depth.find_supplement_start(text, 'A'))
+        self.assertEqual(None, depth.find_supplement_start(text, 'C'))
+
