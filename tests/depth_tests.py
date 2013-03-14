@@ -179,4 +179,24 @@ class DepthTest(TestCase):
         self.assertEqual(21, depth.find_supplement_start(text, 'I'))
         self.assertEqual(0, depth.find_supplement_start(text, 'A'))
         self.assertEqual(None, depth.find_supplement_start(text, 'C'))
+    def test_next_section_offsets(self):
+        """Should get the start and end of each section, even if it is
+        followed by an Appendix or a supplement"""
+        text = u"\n\n§ 201.3 sdsa\nsdd dsdsadsa \n asdsas\nSection\n"
+        text += u"§ 201.20 dfds \n sdfds § 201.2 saddsa \n\n sdsadsa"
+        self.assertEqual((2,45), depth.next_section_offsets(text, 201))
 
+        text = u"\n\n§ 201.3 sdsa\nsdd dsdsadsa \n asdsas\nSection\n"
+        text += u"201.20 dfds \n sdfds § 201.2 saddsa \n\n sdsadsa"
+        self.assertEqual((2,len(text)), depth.next_section_offsets(text, 201))
+
+        text = u"\n\n§ 201.3 sdsa\nsdd dsdsadsa \nAppendix A"
+        self.assertEqual((2,29), depth.next_section_offsets(text, 201))
+
+        text = u"\n\n§ 201.3 sdsa\nsdd dsdsadsa \nSupplement I"
+        self.assertEqual((2,29), depth.next_section_offsets(text, 201))
+    def test_sections(self):
+        text = u"\n\n§ 201.3 sdsa\nsdd dsdsadsa \n asdsas\nSection\n"
+        text += u"§ 201.20 dfds \n sdfds § 201.2 saddsa \n\n sdsadsa\n"
+        text += u"Appendix A bssds \n sdsdsad \nsadad \ndsada"
+        self.assertEqual([(2,45), (45,93)], depth.sections(text, 201))
