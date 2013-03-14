@@ -9,30 +9,35 @@ upper_alpha_sub = "(" + Word(string.ascii_uppercase) + ")"
 roman_sub = "(" + Word("ivxlcdm") + ")"
 digit_sub = "(" + Word(string.digits) + ")"
 
-sub_sub_section = lower_alpha_sub + Optional(digit_sub +
+sub_sub_paragraph = lower_alpha_sub + Optional(digit_sub +
         Optional(roman_sub + Optional(upper_alpha_sub)))
 
-single_citation = (Word(string.digits) + "." + Word(string.digits) +
-        Optional(sub_sub_section) + Optional(Regex(",|and") + OneOrMore(
+single_section = (Word(string.digits) + "." + Word(string.digits) +
+        Optional(sub_sub_paragraph) + Optional(Regex(",|and") + OneOrMore(
             lower_alpha_sub | upper_alpha_sub | roman_sub | digit_sub)))
 
-multiple_sections = ("§§" + single_citation + OneOrMore(
-    Regex(",|and") + Optional("and") + single_citation))
+multiple_section_citation = (u"§§" + single_section + OneOrMore(
+    Regex(",|and") + Optional("and") + single_section))
 
-single_section = ("§" + single_citation)
+single_section_citation = (u"§" + single_section)
 
-any_citation = multiple_sections | single_section
+single_paragraph = "paragraph" + sub_sub_paragraph
+multiple_paragraphs = "paragraphs" + sub_sub_paragraph + OneOrMore(
+        Regex(",|and") + Optional("and") + sub_sub_paragraph)
+
+any_citation = (multiple_section_citation | single_section_citation
+        | single_paragraph | multiple_paragraphs)
 
 
 to_check = [
-    ("§§ 205.7, 205.8, and 205.9", 13),
-    ("§ 205.9(b)", 7),
-    ("§ 205.9(a)", 7),
-    ("§ 205.9(b)(1)", 10),
-    ("§ 205.6(b) (1) and (2)", 14),
-    ("§§ 205.6(b)(3) and 205.11(b)(1)(i)", 23),
-    ("§\n205.11(c)(2)(ii)", 13),
-    ("§ 205.9(b)(1)(i)(C)", 16)
+    (u"§§ 205.7, 205.8, and 205.9", 13),
+    (u"§ 205.9(b)", 7),
+    (u"§ 205.9(a)", 7),
+    (u"§ 205.9(b)(1)", 10),
+    (u"§ 205.6(b) (1) and (2)", 14),
+    (u"§§ 205.6(b)(3) and 205.11(b)(1)(i)", 23),
+    (u"§\n205.11(c)(2)(ii)", 13),
+    (u"§ 205.9(b)(1)(i)(C)", 16)
     ]
 
 
