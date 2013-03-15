@@ -44,11 +44,19 @@ def paragraphs(text, p_level, exclude = []):
     """Return a list of paragraph offsets defined by the level param."""
     paragraphs = []
     paragraph = 0
-    offsets = paragraph_offsets(text, p_level, paragraph, exclude)
+    remaining_text = text
+    text_offset = 0
+    offsets = paragraph_offsets(remaining_text, p_level, paragraph, exclude)
     while offsets:
-        paragraphs.append(offsets)
+        begin,end = offsets
+        paragraphs.append((begin+text_offset, end+text_offset))
         paragraph += 1
-        offsets = paragraph_offsets(text, p_level, paragraph, exclude)
+        text_offset += end
+
+        remaining_text = remaining_text[end:]
+        exclude = [(e[0]-end, e[1]-end) for e in exclude]
+        offsets = paragraph_offsets(remaining_text, p_level, paragraph, 
+                exclude)
     return paragraphs
 
 def _label(text, parts, title=None):
@@ -136,19 +144,40 @@ def sections(text, part):
         offsets = next_section_offsets(remaining_text, part)
     return sections
 
-def build_section_tree(text, part):
-    """Construct the tree for a whole section. Assumes the section starts
-    with an identifier"""
+def _build_super_paragraph_tree(text, label_fn):
+    """Construct the tree for a section, appendix, or supplemental piece.
+    label_fn takes the title as a parameter and creates the label for this
+    tree node."""
     title = text[:text.find("\n")]
     text = text[len(title):]
-    section = re.search(r'%d\.(\d+) ' % part, title).group(1)
 
     exclude = citations.internal_citations(text)
-    label = _label("%d.%s" % (part, section), [str(part), section])
+    label = label_fn(title)
     tree = build_paragraph_tree(text, exclude=exclude, label=label)
 
     tree['label']['title'] = title
     return tree
+
+def build_section_tree(text, part):
+    """Construct the tree for a whole section. Assumes the section starts
+    with an identifier"""
+    def label_fn(title):
+        section = re.search(r'%d\.(\d+) ' % part, title).group(1)
+        return _label("%d.%s" % (part, section), [str(part), section])
+    return _build_super_paragraph_tree(text, label_fn)
+
+def build_appendix_tree(text, part):
+    def label_fn(title):
+        section = re.search(r'Appendix (.) ' % part, title).group(1)
+        return _label("%d Appendix %s" % (part, section), [str(part), section])
+    return _build_super_paragraph_tree(text, label_fn)
+
+def build_supplemental_tree(text, part):
+    def label_fn(title):
+        section = re.search(r'Supplemental (.) ' % part, title).group(1)
+        return _label("%d Supplemental %s" % (part, section), 
+                [str(part), section])
+    return _build_super_paragraph_tree(text, label_fn)
 
 def build_regulation_tree(text, part):
     """Build up the whole tree from the plain text of a single
