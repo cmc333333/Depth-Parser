@@ -1,76 +1,74 @@
-# vim: set fileencoding=utf-8 :
-
+from regdepth.paragraph import *
 from unittest import TestCase
-import depth
 
-class DepthTest(TestCase):
+class DepthParagraphTest(TestCase):
     def test_find_paragraph_start_success(self):
         """Simple label checks."""
         text = "This (a) is (Z) the first (1) section for (2) something\n"
         text += "and then (iii) another thing goes here."
-        self.assertEqual(5, depth.find_paragraph_start(text, 0, 0))
-        self.assertEqual(None, depth.find_paragraph_start(text, 0, 1))
-        self.assertEqual(26, depth.find_paragraph_start(text, 1, 0))
-        self.assertEqual(42, depth.find_paragraph_start(text, 1, 1))
-        self.assertEqual(None, depth.find_paragraph_start(text, 1, 2))
-        self.assertEqual(None, depth.find_paragraph_start(text, 2, 0))
-        self.assertEqual(None, depth.find_paragraph_start(text, 2, 1))
-        self.assertEqual(65, depth.find_paragraph_start(text, 2, 2))
-        self.assertEqual(None, depth.find_paragraph_start(text, 2, 3))
-        self.assertEqual(None, depth.find_paragraph_start(text, 3, 0))
-        self.assertEqual(12, depth.find_paragraph_start(text, 3, 25))
-        self.assertEqual(None, depth.find_paragraph_start(text, 3, 26))
+        self.assertEqual(5, find_paragraph_start(text, 0, 0))
+        self.assertEqual(None, find_paragraph_start(text, 0, 1))
+        self.assertEqual(26, find_paragraph_start(text, 1, 0))
+        self.assertEqual(42, find_paragraph_start(text, 1, 1))
+        self.assertEqual(None, find_paragraph_start(text, 1, 2))
+        self.assertEqual(None, find_paragraph_start(text, 2, 0))
+        self.assertEqual(None, find_paragraph_start(text, 2, 1))
+        self.assertEqual(65, find_paragraph_start(text, 2, 2))
+        self.assertEqual(None, find_paragraph_start(text, 2, 3))
+        self.assertEqual(None, find_paragraph_start(text, 3, 0))
+        self.assertEqual(12, find_paragraph_start(text, 3, 25))
+        self.assertEqual(None, find_paragraph_start(text, 3, 26))
     def test_find_paragraph_start_excludes(self):
         """Excluded ranges should not be included in results."""
         text = "This (a) is (a) a test (a) section for (a) testing."
-        self.assertEqual(5, depth.find_paragraph_start(text, 0, 0))
-        self.assertEqual(5, depth.find_paragraph_start(text, 0, 0, []))
-        self.assertEqual(5, depth.find_paragraph_start(text, 0, 0, 
+        self.assertEqual(5, find_paragraph_start(text, 0, 0))
+        self.assertEqual(5, find_paragraph_start(text, 0, 0, []))
+        self.assertEqual(5, find_paragraph_start(text, 0, 0, 
             [(10,len(text))]))
-        self.assertEqual(5, depth.find_paragraph_start(text, 0, 0, [(0,1)]))
-        self.assertEqual(12, depth.find_paragraph_start(text, 0, 0, [(0,10)]))
-        self.assertEqual(12, depth.find_paragraph_start(text, 0, 0, 
+        self.assertEqual(5, find_paragraph_start(text, 0, 0, [(0,1)]))
+        self.assertEqual(12, find_paragraph_start(text, 0, 0, [(0,10)]))
+        self.assertEqual(12, find_paragraph_start(text, 0, 0, 
             [(0,1), (4,9)]))
-        self.assertEqual(12, depth.find_paragraph_start(text, 0, 0, [(5,5)]))
-        self.assertEqual(39, depth.find_paragraph_start(text, 0, 0, 
+        self.assertEqual(12, find_paragraph_start(text, 0, 0, [(5,5)]))
+        self.assertEqual(39, find_paragraph_start(text, 0, 0, 
             [(5,7), (10, 25)]))
-        self.assertEqual(None, depth.find_paragraph_start(text, 0, 0, 
+        self.assertEqual(None, find_paragraph_start(text, 0, 0, 
             [(0,len(text))]))
     def test_paragraph_offsets_present(self):
         """Test that section_offsets works as expected for good input."""
         text = "This (a) is a good (b) test for (c) something like this."""
-        self.assertEqual((5,19), depth.paragraph_offsets(text, 0, 0))
-        self.assertEqual((19,32), depth.paragraph_offsets(text, 0, 1))
-        self.assertEqual((32,len(text)), depth.paragraph_offsets(text, 0, 2))
+        self.assertEqual((5,19), paragraph_offsets(text, 0, 0))
+        self.assertEqual((19,32), paragraph_offsets(text, 0, 1))
+        self.assertEqual((32,len(text)), paragraph_offsets(text, 0, 2))
     def test_paragraph_offsets_not_present(self):
         """Verify we get None when the searched for text isn't there."""
         text = "This (a) is a good (b) test for (c) something like this."""
-        self.assertEqual(None, depth.paragraph_offsets(text, 0, 3))
-        self.assertEqual(None, depth.paragraph_offsets(text, 1, 0))
-        self.assertEqual(None, depth.paragraph_offsets(text, 2, 0))
+        self.assertEqual(None, paragraph_offsets(text, 0, 3))
+        self.assertEqual(None, paragraph_offsets(text, 1, 0))
+        self.assertEqual(None, paragraph_offsets(text, 2, 0))
     def test_paragraphs(self):
         """This method should pull out the relevant paragraphs, as a list"""
         text = "This (a) is a good (1) test (2) of (3) some (b) body."
-        paragraphs = depth.paragraphs(text,0)
-        paragraph_strings = [text[s[0]:s[1]] for s in paragraphs]
+        ps = paragraphs(text,0)
+        paragraph_strings = [text[s[0]:s[1]] for s in ps]
         self.assertEqual(paragraph_strings,
                 ["(a) is a good (1) test (2) of (3) some ",
                     "(b) body."])
 
         text = "(a) is a good (1) test (2) of (3) some "
-        paragraphs = depth.paragraphs(text,1)
-        paragraph_strings = [text[s[0]:s[1]] for s in paragraphs]
+        ps = paragraphs(text,1)
+        paragraph_strings = [text[s[0]:s[1]] for s in ps]
         self.assertEqual(paragraph_strings,
                 ["(1) test ", "(2) of ", "(3) some "])
 
-        paragraphs = depth.paragraphs(text,2)
-        paragraph_strings = [text[s[0]:s[1]] for s in paragraphs]
+        ps = paragraphs(text,2)
+        paragraph_strings = [text[s[0]:s[1]] for s in ps]
         self.assertEqual(paragraph_strings, [])
 
     def test_build_paragraph_tree(self):
         """Verify several paragraph trees."""
         text = "This (a) is a good (1) test (2) of (3) some (b) body."
-        self.assertEqual(depth.build_paragraph_tree(text),
+        self.assertEqual(build_paragraph_tree(text),
                 {
                     "text": "This ",
                     "label": {"text": "", "parts": []},
@@ -114,7 +112,7 @@ class DepthTest(TestCase):
         ref = "Ref (b)(2)"
         text = "This (a) is a good (1) %s test (2) no?" % ref
         ref_pos = text.find(ref)
-        self.assertEqual(depth.build_paragraph_tree(text, 
+        self.assertEqual(build_paragraph_tree(text, 
             exclude=[(ref_pos,ref_pos+len(ref))]),
                 {
                     "text": "This ",
@@ -146,7 +144,7 @@ class DepthTest(TestCase):
     def test_build_paragraph_tree_label_preamble(self):
         """Paragraph tree's labels can be prepended."""
         text = "This (a) is a good (1) test (2) of (3) some (b) body."
-        tree = depth.build_paragraph_tree(text, 
+        tree = build_paragraph_tree(text, 
                 label={"text": "205.14", "parts": ["205", "14"]})
         self.assertEqual("205.14", tree['label']['text'])
         self.assertEqual(["205", "14"], tree['label']['parts'])
@@ -162,41 +160,4 @@ class DepthTest(TestCase):
         self.assertEqual(["205", "14", "a", "3"], child_a_3['label']['parts'])
         self.assertEqual("205.14(b)", child_b['label']['text'])
         self.assertEqual(["205", "14", "b"], child_b['label']['parts'])
-    def test_find_next_section_start(self):
-        text = u"\n\nSomething\n§ 205.3 thing\n\n§ 205.4 Something\n§ 203.19"
-        self.assertEqual(12, depth.find_next_section_start(text, 205))
-        self.assertEqual(None, depth.find_next_section_start(text, 204))
-        self.assertEqual(45, depth.find_next_section_start(text, 203))
-    def test_find_appendix_start(self):
-        text = "Some \nAppendix C Other\n\n Thing Appendix A\nAppendix B"
-        self.assertEqual(None, depth.find_appendix_start(text))
-        self.assertEqual(None, depth.find_appendix_start(text, 'A'))
-        self.assertEqual(42, depth.find_appendix_start(text, 'B'))
-        self.assertEqual(6, depth.find_appendix_start(text, 'C'))
-    def test_find_supplement_start(self):
-        text = "Supplement A S\nOther\nSupplement I Thing\nXX Supplement C Q"
-        self.assertEqual(21, depth.find_supplement_start(text))
-        self.assertEqual(21, depth.find_supplement_start(text, 'I'))
-        self.assertEqual(0, depth.find_supplement_start(text, 'A'))
-        self.assertEqual(None, depth.find_supplement_start(text, 'C'))
-    def test_next_section_offsets(self):
-        """Should get the start and end of each section, even if it is
-        followed by an Appendix or a supplement"""
-        text = u"\n\n§ 201.3 sdsa\nsdd dsdsadsa \n asdsas\nSection\n"
-        text += u"§ 201.20 dfds \n sdfds § 201.2 saddsa \n\n sdsadsa"
-        self.assertEqual((2,45), depth.next_section_offsets(text, 201))
 
-        text = u"\n\n§ 201.3 sdsa\nsdd dsdsadsa \n asdsas\nSection\n"
-        text += u"201.20 dfds \n sdfds § 201.2 saddsa \n\n sdsadsa"
-        self.assertEqual((2,len(text)), depth.next_section_offsets(text, 201))
-
-        text = u"\n\n§ 201.3 sdsa\nsdd dsdsadsa \nAppendix A"
-        self.assertEqual((2,29), depth.next_section_offsets(text, 201))
-
-        text = u"\n\n§ 201.3 sdsa\nsdd dsdsadsa \nSupplement I"
-        self.assertEqual((2,29), depth.next_section_offsets(text, 201))
-    def test_sections(self):
-        text = u"\n\n§ 201.3 sdsa\nsdd dsdsadsa \n asdsas\nSection\n"
-        text += u"§ 201.20 dfds \n sdfds § 201.2 saddsa \n\n sdsadsa\n"
-        text += u"Appendix A bssds \n sdsdsad \nsadad \ndsada"
-        self.assertEqual([(2,45), (45,93)], depth.sections(text, 201))
