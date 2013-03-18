@@ -1,6 +1,8 @@
 # vim: set fileencoding=utf-8 :
 
+from regdepth.paragraph import build_paragraph_tree
 from regdepth.section import *
+from regdepth.tree import label
 from unittest import TestCase
 
 class DepthSectionTest(TestCase):
@@ -30,3 +32,14 @@ class DepthSectionTest(TestCase):
         text += u"§ 201.20 dfds \n sdfds § 201.2 saddsa \n\n sdsadsa\n"
         text += u"Appendix A bssds \n sdsdsad \nsadad \ndsada"
         self.assertEqual([(2,45), (45,93)], sections(text, 201))
+    def test_build_section_tree(self):
+        """Should be just like build_paragraph tree, but with a label"""
+        line1 = u"§ 201.20 Super Awesome Section"
+        line2 = "\nThis (a) is a good (1) test (2) of (3) some (b) body."
+        tree = build_section_tree(line1+line2, 201)
+        p_tree = build_paragraph_tree(line2, label=label("201.20", ["201", "20"]))
+        for key in p_tree:
+            if key != 'label':
+                self.assertTrue(key in tree)
+                self.assertEqual(p_tree[key], tree[key])
+        self.assertEqual(tree['label'], label("201.20", ["201", "20"], line1))

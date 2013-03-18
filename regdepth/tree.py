@@ -1,4 +1,4 @@
-def label(text, parts, title=None):
+def label(text="", parts=[], title=None):
     if title:
         return {'text': text, 'parts': parts, 'title': title}
     return {'text': text, 'parts': parts}
