@@ -1,8 +1,8 @@
 # vim: set fileencoding=utf-8 :
 
-from regdepth.paragraph import build_paragraph_tree
-from regdepth.section import *
-from regdepth.tree import label
+from regs.depth.paragraph import build_paragraph_tree
+from regs.depth.section import *
+from regs.depth.tree import label
 from unittest import TestCase
 
 class DepthSectionTest(TestCase):

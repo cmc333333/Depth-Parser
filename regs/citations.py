@@ -53,11 +53,3 @@ def internal_citations(plain_text):
     for _, start, end in any_citation.scanString(plain_text):
         citations.append((start,end))
     return citations
-
-"""
-pt_file = open('rege.txt')
-pt = pt_file.read().strip()
-pt_file.close()
-for start, end in internal_citations(pt):
-    print pt[start:end]
-"""

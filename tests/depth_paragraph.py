@@ -1,4 +1,4 @@
-from regdepth.paragraph import *
+from regs.depth.paragraph import *
 from unittest import TestCase
 
 class DepthParagraphTest(TestCase):

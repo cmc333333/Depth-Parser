@@ -1,10 +1,10 @@
 # vim: set fileencoding=utf-8 :
 import re
-from regdepth.appendix import find_appendix_start
-from regdepth.tree import *
-from regdepth.search import find_start
-from regdepth.super_paragraph import *
-from regdepth.supplement import find_supplement_start
+from regs.depth.appendix import find_appendix_start
+from regs.depth.super_paragraph import *
+from regs.depth.supplement import find_supplement_start
+from regs.depth.tree import *
+from regs.search import find_offsets, find_start
 
 def find_next_section_start(text, part):
     """Find the start of the next section (e.g. 205.14)"""
@@ -12,24 +12,17 @@ def find_next_section_start(text, part):
 
 def next_section_offsets(text, part):
     """Find the start/end of the next section"""
-    start = find_next_section_start(text, part)
-    if start == None:
+    offsets = find_offsets(text, lambda t: find_next_section_start(t, part))
+    if offsets == None:
         return None
-    post_start_text = text[start+1:]
-    next_section = find_next_section_start(post_start_text, part)
-    if next_section:
-        next_section += start + 1
 
-    start_appendix = find_appendix_start(text, 'A')
-    start_supplement = find_supplement_start(text)
-
-    end = next_section
-    if end == None:
-        end = start_appendix
-    if end == None:
-        end = start_supplement
-    if end == None:
-        end = len(text)
+    start, end = offsets
+    appendix_start = find_appendix_start(text, 'A')
+    supplement_start = find_supplement_start(text)
+    if appendix_start != None and appendix_start < end:
+        return (start, appendix_start)
+    if supplement_start != None and supplement_start < end:
+        return (start, supplement_start)
     return (start, end)
 
 def sections(text, part):

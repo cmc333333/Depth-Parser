@@ -1,8 +1,8 @@
 import itertools
 import re
-from regdepth import tree
+from regs.depth import tree
+from regs.utils import roman_nums
 import string
-from utils import roman_nums
 
 p_levels = [
     list(string.ascii_lowercase),

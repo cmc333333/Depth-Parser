@@ -1,5 +1,5 @@
-import citations
-from regdepth.paragraph import build_paragraph_tree
+from regs import citations
+from regs.depth.paragraph import build_paragraph_tree
 
 def build_super_paragraph_tree(text, label_fn):
     """Construct the tree for a section, appendix, or supplemental piece.

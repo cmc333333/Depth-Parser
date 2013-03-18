@@ -1,7 +1,7 @@
 import re
-from regdepth.search import find_start
-from regdepth.super_paragraph import *
-from regdepth.tree import *
+from regs.depth.super_paragraph import *
+from regs.depth.tree import *
+from regs.search import find_start
 
 def find_appendix_start(text, appendix='A'):
     """Find the start of the appendix (e.g. Appendix A)"""

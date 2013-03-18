@@ -1,4 +1,4 @@
-from regdepth.appendix import *
+from regs.depth.appendix import *
 from unittest import TestCase
 
 class DepthAppendixTest(TestCase):

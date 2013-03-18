@@ -1,6 +1,6 @@
 # vim: set fileencoding=utf-8 :
 
-from regdepth import *
+from regs.depth import *
 from unittest import TestCase
 
 class DepthTest(TestCase):

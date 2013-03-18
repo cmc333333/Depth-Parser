@@ -1,7 +1,7 @@
-from regdepth.search import *
+from regs.search import find_start
 from unittest import TestCase
 
-class DepthSearchTest(TestCase):
+class SearchTest(TestCase):
     def test_find_start(self):
         text = "Here is \n Some text\nWith Some\nHeader Info Here\nthen nonsense"
         self.assertEqual(30, find_start(text, "Header", "Info"))
@@ -9,4 +9,3 @@ class DepthSearchTest(TestCase):
         self.assertEqual(47, find_start(text, "then", "nonsense"))
         self.assertEqual(None, find_start(text, "doesn't", "exist"))
         self.assertEqual(None, find_start(text, "Here", "text"))
-

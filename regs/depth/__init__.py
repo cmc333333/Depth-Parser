@@ -1,5 +1,5 @@
-from regdepth.tree import *
-from regdepth.section import build_section_tree, sections
+from regs.depth.tree import *
+from regs.depth.section import build_section_tree, sections
 
 def build_regulation_tree(text, part):
     """Build up the whole tree from the plain text of a single

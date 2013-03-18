@@ -1,6 +1,6 @@
-from regdepth.paragraph import build_paragraph_tree
-from regdepth.super_paragraph import *
-from regdepth.tree import label
+from regs.depth.paragraph import build_paragraph_tree
+from regs.depth.super_paragraph import *
+from regs.depth.tree import label
 from unittest import TestCase
 
 class DepthSuperParagraphTest(TestCase):

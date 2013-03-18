@@ -1,4 +1,4 @@
-from regdepth.supplement import *
+from regs.depth.supplement import *
 from unittest import TestCase
 
 class DepthSupplementTest(TestCase):
