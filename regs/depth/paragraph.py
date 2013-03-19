@@ -1,6 +1,7 @@
 import itertools
 import re
 from regs.depth import tree
+from regs.search import segments
 from regs.utils import roman_nums
 import string
 
@@ -40,22 +41,9 @@ def paragraph_offsets(text, p_level, paragraph, exclude = []):
 
 def paragraphs(text, p_level, exclude = []):
     """Return a list of paragraph offsets defined by the level param."""
-    paragraphs = []
-    paragraph = 0
-    remaining_text = text
-    text_offset = 0
-    offsets = paragraph_offsets(remaining_text, p_level, paragraph, exclude)
-    while offsets:
-        begin,end = offsets
-        paragraphs.append((begin+text_offset, end+text_offset))
-        paragraph += 1
-        text_offset += end
-
-        remaining_text = remaining_text[end:]
-        exclude = [(e[0]-end, e[1]-end) for e in exclude]
-        offsets = paragraph_offsets(remaining_text, p_level, paragraph, 
-                exclude)
-    return paragraphs
+    def offsets_fn(remaining_text, p_idx, exclude):
+        return paragraph_offsets(remaining_text, p_level, p_idx, exclude)
+    return segments(text, offsets_fn, exclude)
 
 
 def build_paragraph_tree(text, p_level = 0, exclude = [], 

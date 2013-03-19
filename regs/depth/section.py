@@ -4,7 +4,7 @@ from regs.depth.appendix import find_appendix_start
 from regs.depth.super_paragraph import *
 from regs.depth.supplement import find_supplement_start
 from regs.depth.tree import *
-from regs.search import find_offsets, find_start
+from regs.search import find_offsets, find_start, segments
 
 def find_next_section_start(text, part):
     """Find the start of the next section (e.g. 205.14)"""
@@ -27,19 +27,9 @@ def next_section_offsets(text, part):
 
 def sections(text, part):
     """Return a list of section offsets. Does not include appendices."""
-    sections = []
-    remaining_text = text
-    text_offset = 0
-    offsets = next_section_offsets(remaining_text, part)
-    while offsets:
-        begin,end = offsets
-        sections.append((begin+text_offset, end+text_offset))
-        text_offset += begin + 1
-
-        remaining_text = remaining_text[begin + 1:]
-        offsets = next_section_offsets(remaining_text, part)
-    return sections
-
+    def offsets_fn(remaining_text, idx, excludes):
+        return next_section_offsets(remaining_text, part)
+    return segments(text, offsets_fn)
 
 def build_section_tree(text, part):
     """Construct the tree for a whole section. Assumes the section starts
