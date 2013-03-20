@@ -23,7 +23,7 @@ upper_alpha_sub = "(" + Word(string.ascii_uppercase).setResultsName("id") + ")"
 roman_sub = "(" + Word("ivxlcdm").setResultsName("id") + ")"
 digit_sub = "(" + Word(string.digits).setResultsName("id") + ")"
 
-def header_search(plain_text, section):
+def split_by_header(plain_text, section):
     paragraph = (str(section) + lower_alpha_sub.setResultsName("paragraph1") + 
             Optional(digit_sub.setResultsName("paragraph2") +
                 Optional(roman_sub.setResultsName("paragraph3") + 
@@ -35,5 +35,11 @@ def header_search(plain_text, section):
 
     header = whole_par.setResultsName("whole") | keyterm.setResultsName("keyterm")
 
-    return list(header.scanString(plain_text))
-
+    triplets = list(header.scanString(plain_text))
+    triplets.append((None, len(plain_text), None))
+    chunks = []
+    for i in range(1, len(triplets)):
+        match, start, _ = triplets[i-1]
+        _, end, _ = triplets[i]
+        chunks.append((match, plain_text[start:end]))
+    return chunks
