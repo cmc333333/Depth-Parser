@@ -1,12 +1,12 @@
-from regs.interpretation import headers
+from regs.interpretation.chunking import *
 from unittest import TestCase
 
-class InterpretationHeader(TestCase):
-    def test_parse_header_paragraphs(self):
+class InterpretationChunking(TestCase):
+    def test_header_search_paragraphs(self):
         text = "Paragraph 3(b)(c)\n\n\nParagraph 4(z)\nParagraph Invalid\n"
-        self.assertEqual([], headers.parse(text, 2))
+        self.assertEqual([], header_search(text, 2))
 
-        three = headers.parse(text, 3)
+        three = header_search(text, 3)
         self.assertEqual(1, len(three))
         match, start, end = three[0]
         self.assertEqual(0, start)
@@ -16,7 +16,7 @@ class InterpretationHeader(TestCase):
         self.assertEqual('b', match.paragraph1.id)
         self.assertEqual('', match.paragraph2)
 
-        four = headers.parse(text, 4)
+        four = header_search(text, 4)
         self.assertEqual(1, len(four))
         match, start, end = four[0]
         self.assertEqual(20, start)
@@ -25,11 +25,11 @@ class InterpretationHeader(TestCase):
         self.assertNotEqual('', match.whole)
         self.assertEqual('z', match.paragraph1.id)
         self.assertEqual('', match.paragraph2)
-    def test_parse_header_keywords(self):
+    def test_header_search_keywords(self):
         text = "Blah 3(b)(c)\n\n3(b)(1)(iv)(Z) Some Definition\n3(i) Another\n3 none\n"
-        self.assertEqual([], headers.parse(text, 4))
+        self.assertEqual([], header_search(text, 4))
 
-        three = headers.parse(text, 3)
+        three = header_search(text, 3)
         self.assertEqual(2, len(three))
 
         match, start, end = three[0]
@@ -51,11 +51,11 @@ class InterpretationHeader(TestCase):
         self.assertEqual('Another', match.keyterm.term.strip())
         self.assertEqual('i', match.paragraph1.id)
         self.assertEqual('', match.paragraph2)
-    def test_parse_header_mix(self):
+    def test_header_search_mix(self):
         text = "Paragraph 3(b)(1)\n\n3(b)(1)(iv)(Z) Some Definition\n3(i) Another\n3 a\n"
-        self.assertEqual([], headers.parse(text, 4))
+        self.assertEqual([], header_search(text, 4))
 
-        three = headers.parse(text, 3)
+        three = header_search(text, 3)
         self.assertEqual(3, len(three))
 
         self.assertEqual(0, three[0][1])
