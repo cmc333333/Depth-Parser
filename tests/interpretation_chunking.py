@@ -61,3 +61,25 @@ class InterpretationChunking(TestCase):
         self.assertEqual(3, len(three))
 
         self.assertEqual([p1_text, p2_text, p3_text], [t[1] for t in three])
+    def test_find_next_section_offsets(self):
+        section_5 = "Section 201.5\nSection 202.3\nother body\n\n"
+        section_65 = "Section 201.65\n body body\n\nSection Other"
+        text = "Something Section\n" + section_5 + section_65
+        self.assertEqual(None, find_next_section_offsets(text, 404))
+
+        begin,end = find_next_section_offsets(text, 201)
+        self.assertEqual(section_5, text[begin:end])
+    def test_sections(self):
+        section_5 = "Section 201.5\nSection 202.3\nother body\n\n"
+        section_65 = "Section 201.65\n body body\n\nSection Other"
+        text = "Something Section\n" + section_5 + section_65
+        self.assertEqual([], sections(text,404))
+
+        interps = sections(text, 201)
+        self.assertEqual(2, len(interps))
+        begin, end = interps[0]
+        self.assertEqual(section_5, text[begin:end])
+        begin, end = interps[1]
+        self.assertEqual(section_65, text[begin:end])
+    def test_get_section_number(self):
+        self.assertEqual("101", get_section_number("Section 55.101 Something Here", 55))

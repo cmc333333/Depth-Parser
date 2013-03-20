@@ -3,19 +3,20 @@ import re
 from regs import search
 import string
 
-def find_next_offsets(text, part):
-    """Find the start/end of the next interpretation"""
+def find_next_section_offsets(text, part):
+    """Find the start/end of the next section"""
     def find_start(text):
         return search.find_start(text, u"Section", ur"%d.\d+" % part)
     return search.find_offsets(text, find_start)
 
-def interpretations(text, part):
+def sections(text, part):
     """Return a list of interpretation offsets."""
     def offsets_fn(remaining_text, idx, excludes):
-        return find_next_offsets(remaining_text, part)
+        return find_next_section_offsets(remaining_text, part)
     return search.segments(text, offsets_fn)
 
-def get_section(title, part):
+def get_section_number(title, part):
+    """Pull out section number from header. Assumes proper format"""
     return re.match(r'^Section %d.(\d+)(.*)$' % part, title).group(1)
 
 lower_alpha_sub = "(" + Word(string.ascii_lowercase).setResultsName("id") + ")"
