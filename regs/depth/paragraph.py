@@ -14,6 +14,35 @@ p_levels = [
     #   handling that yet
 ]
 
+def matching_subparagraph_ids(p_level, paragraph):
+    """Return a list of matches if this paragraph id matches one of the subparagraph ids 
+    (e.g.  letter (i) and roman numeral (i)."""
+    matches = []
+    for depth in range(p_level+1, len(p_levels)):
+        for sub_id, sub in enumerate(p_levels[depth]):
+            if sub == p_levels[p_level][paragraph]:
+                matches.append((depth, sub_id))
+    return matches
+
+def best_start(text, p_level, paragraph, starts, exclude = []):
+    """Given a list of potential paragraph starts, pick the best based on knowledge of
+    subparagraph structure. Do this by checking if the id following the subparagraph
+    (e.g. ii) is between the first match and the second. If so, skip it, as that
+    implies the first match was a subparagraph."""
+    subparagraph_hazards = matching_subparagraph_ids(p_level, paragraph)
+    starts = starts + [len(text)]
+    for i in range(1, len(starts)):
+        s_text = text[starts[i-1]:starts[i]]
+        s_exclude = [(e[0] + starts[i-1], e[1] + starts[i-1]) for e in exclude]
+        is_subparagraph = False
+        for hazard_level, hazard_idx in subparagraph_hazards:
+            if find_paragraph_start(s_text, hazard_level, hazard_idx + 1, s_exclude):
+                is_subparagraph = True
+            if find_paragraph_start(s_text, hazard_level, hazard_idx - 1, s_exclude):
+                is_subparagraph = True
+        if not is_subparagraph:
+            return starts[i-1]
+
 def find_paragraph_start(text, p_level, paragraph, exclude = []):
     """Find the position for the start of the requested label. p_Level is one
     of 0,1,2,3; paragraph is the index within that label. Return None if not
@@ -25,8 +54,13 @@ def find_paragraph_start(text, p_level, paragraph, exclude = []):
             in re.finditer("\(%s\)" % p_levels[p_level][paragraph], text)]
     match_starts = [m for m in match_starts
             if all([m < e[0] or m > e[1]  for e in exclude])]
-    if match_starts:
+
+    if len(match_starts) == 0:
+        return None
+    elif len(match_starts) == 1:
         return match_starts[0]
+    else:
+        return best_start(text, p_level, paragraph, match_starts, exclude)
 
 def paragraph_offsets(text, p_level, paragraph, exclude = []):
     """Find the start/end of the requested paragraph. Assumes the text does 

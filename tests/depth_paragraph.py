@@ -160,4 +160,20 @@ class DepthParagraphTest(TestCase):
         self.assertEqual(["205", "14", "a", "3"], child_a_3['label']['parts'])
         self.assertEqual("205.14(b)", child_b['label']['text'])
         self.assertEqual(["205", "14", "b"], child_b['label']['parts'])
-
+    def test_find_paragraph_start_is(self):
+        """Test the case where we are looking for paragraph (i) (the letter,) but we run
+        into (i) (the roman numeral.)"""
+        text1 = "(h) Paragraph (1) H has (i) some (ii) sub (iii) sections but "
+        text2 = "(i) this paragraph does not."
+        self.assertEqual(len(text1), find_paragraph_start(text1+text2, 0, 8))
+    def test_matching_subparagraph_ids(self):
+        matches = matching_subparagraph_ids(0,8)    #   'i'
+        self.assertEqual(1, len(matches))
+        self.assertEqual(2, matches[0][0])
+        self.assertEqual(0, matches[0][1])
+        matches = matching_subparagraph_ids(1,3)    #   '4'
+        self.assertEqual(0, len(matches))
+    def test_best_start(self):
+        text = "This is my (ii) awesome text with a subparagraph in it."
+        self.assertEqual(len(text), best_start(text, 0, 8, [0, len(text)]))
+        self.assertEqual(0, best_start(text, 0, 9, [0, len(text)]))
