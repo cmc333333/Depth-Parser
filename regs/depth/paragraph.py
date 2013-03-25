@@ -38,8 +38,6 @@ def best_start(text, p_level, paragraph, starts, exclude = []):
         for hazard_level, hazard_idx in subparagraph_hazards:
             if find_paragraph_start(s_text, hazard_level, hazard_idx + 1, s_exclude):
                 is_subparagraph = True
-            if find_paragraph_start(s_text, hazard_level, hazard_idx - 1, s_exclude):
-                is_subparagraph = True
         if not is_subparagraph:
             return starts[i-1]
 
