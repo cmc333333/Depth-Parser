@@ -1,4 +1,4 @@
-from pyparsing import Word, Optional, LineStart, LineEnd, SkipTo, Literal
+from pyparsing import Word, Optional, LineStart, LineEnd, SkipTo
 import re
 from regs import search
 import string
@@ -19,12 +19,33 @@ def get_section_number(title, part):
     """Pull out section number from header. Assumes proper format"""
     return re.match(r'^Section %d.(\d+)(.*)$' % part, title).group(1)
 
+def applicable_offsets(plain_text, section):
+    """Return offsets for the text which is applicable only to a certain
+    paragraph/keyterm in the regulation."""
+    starts = [start for _,start,_ in _applicable_parser(section).scanString(plain_text)]
+    starts.append(len(plain_text))
+    for i in range(1, len(starts)):
+        starts[i-1] = (starts[i-1], starts[i])
+    starts = starts[:-1]
+    return starts
+
+def build_label(label_prefix, match):
+    """Create a string to represent this label based on the pyparsing match."""
+    label = str(label_prefix)   # copy
+    for p in range(1,5):
+        attr = 'paragraph' + str(p)
+        if getattr(match, attr):
+            label += "(" + getattr(match, attr).id + ")"
+    return label
+
 lower_alpha_sub = "(" + Word(string.ascii_lowercase).setResultsName("id") + ")"
 upper_alpha_sub = "(" + Word(string.ascii_uppercase).setResultsName("id") + ")"
 roman_sub = "(" + Word("ivxlcdm").setResultsName("id") + ")"
 digit_sub = "(" + Word(string.digits).setResultsName("id") + ")"
 
-def _header_parser(section):
+def _applicable_parser(section):
+    """Return a parser for lines which indicate where this interpretation is
+    applicable."""
     paragraph = (str(section) + lower_alpha_sub.setResultsName("paragraph1") + 
             Optional(digit_sub.setResultsName("paragraph2") +
                 Optional(roman_sub.setResultsName("paragraph3") + 
@@ -36,20 +57,11 @@ def _header_parser(section):
 
     return whole_par.setResultsName("whole") | keyterm.setResultsName("keyterm")
 
-def relevance_offsets(plain_text, section):
-    starts = [start for _,start,_ in _header_parser(section).scanString(plain_text)]
-    starts.append(len(plain_text))
-    for i in range(1, len(starts)):
-        starts[i-1] = (starts[i-1], starts[i])
-    starts = starts[:-1]
-    return starts
-
-def split_by_header(plain_text, section):
-    triplets = list(_header_parser(section).scanString(plain_text))
-    triplets.append((None, len(plain_text), None))
-    chunks = []
-    for i in range(1, len(triplets)):
-        match, start, _ = triplets[i-1]
-        _, end, _ = triplets[i]
-        chunks.append((match, plain_text[start:end]))
-    return chunks
+def applicable_paragraph(line, section):
+    """Return a pyparsing match for whatever paragraph is applicable to this line (the
+    header)"""
+    if not line.endswith("\n"):
+        line = line + "\n"
+    matches = [match for match, _, _ in _applicable_parser(section).scanString(line)]
+    if matches:
+        return matches[0]

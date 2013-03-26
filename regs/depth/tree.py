@@ -4,8 +4,8 @@ def label(text="", parts=[], title=None):
     return {'text': text, 'parts': parts}
 _label = label
 
-def extend_label(existing, text, part):
-    return label(existing['text'] + text, existing['parts'] + [part])
+def extend_label(existing, text, part, title=None):
+    return label(existing['text'] + text, existing['parts'] + [part], title)
 def node(text='', children=[], label=None):
     if not label:
         label = _label('',[])
