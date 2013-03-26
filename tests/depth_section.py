@@ -1,7 +1,7 @@
 # vim: set fileencoding=utf-8 :
 
-from regs.depth.paragraph import build_paragraph_tree
 from regs.depth.section import *
+from regs.depth.super_paragraph import regParser
 from regs.depth.tree import label
 from unittest import TestCase
 
@@ -37,7 +37,8 @@ class DepthSectionTest(TestCase):
         line1 = u"§ 201.20 Super Awesome Section"
         line2 = "\nThis (a) is a good (1) test (2) of (3) some (b) body."
         tree = build_section_tree(line1+line2, 201)
-        p_tree = build_paragraph_tree(line2, label=label("201.20", ["201", "20"]))
+        p_tree = regParser.build_paragraph_tree(line2, 
+                label=label("201.20", ["201", "20"]))
         for key in p_tree:
             if key != 'label':
                 self.assertTrue(key in tree)

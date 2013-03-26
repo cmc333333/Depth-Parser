@@ -24,7 +24,7 @@ upper_alpha_sub = "(" + Word(string.ascii_uppercase).setResultsName("id") + ")"
 roman_sub = "(" + Word("ivxlcdm").setResultsName("id") + ")"
 digit_sub = "(" + Word(string.digits).setResultsName("id") + ")"
 
-def split_by_header(plain_text, section):
+def _header_parser(section):
     paragraph = (str(section) + lower_alpha_sub.setResultsName("paragraph1") + 
             Optional(digit_sub.setResultsName("paragraph2") +
                 Optional(roman_sub.setResultsName("paragraph3") + 
@@ -34,9 +34,18 @@ def split_by_header(plain_text, section):
     keyterm = (LineStart() + paragraph + 
             SkipTo("\n").setResultsName("term") + LineEnd())
 
-    header = whole_par.setResultsName("whole") | keyterm.setResultsName("keyterm")
+    return whole_par.setResultsName("whole") | keyterm.setResultsName("keyterm")
 
-    triplets = list(header.scanString(plain_text))
+def relevance_offsets(plain_text, section):
+    starts = [start for _,start,_ in _header_parser(section).scanString(plain_text)]
+    starts.append(len(plain_text))
+    for i in range(1, len(starts)):
+        starts[i-1] = (starts[i-1], starts[i])
+    starts = starts[:-1]
+    return starts
+
+def split_by_header(plain_text, section):
+    triplets = list(_header_parser(section).scanString(plain_text))
     triplets.append((None, len(plain_text), None))
     chunks = []
     for i in range(1, len(triplets)):

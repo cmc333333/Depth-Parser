@@ -1,5 +1,11 @@
 from regs import citations, utils
-from regs.depth.paragraph import build_paragraph_tree
+from regs.depth import tree
+from regs.depth.paragraph import ParagraphParser
+
+def _mk_label(old_label, next_part):
+    return tree.extend_label(old_label, '(' + next_part + ')', next_part)
+
+regParser = ParagraphParser(r"\(%s\)", _mk_label)
 
 def build_super_paragraph_tree(text, label_fn):
     """Construct the tree for a section, appendix, or supplemental piece.
@@ -9,7 +15,7 @@ def build_super_paragraph_tree(text, label_fn):
 
     exclude = citations.internal_citations(text)
     label = label_fn(title)
-    tree = build_paragraph_tree(text, exclude=exclude, label=label)
+    tree = regParser.build_paragraph_tree(text, exclude=exclude, label=label)
 
     tree['label']['title'] = title
     return tree
