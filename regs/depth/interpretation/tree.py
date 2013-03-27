@@ -1,14 +1,14 @@
 from regs import utils
 from regs.depth import tree
 from regs.depth.paragraph import ParagraphParser
-from regs.depth.interpretation import carving
+from regs.depth.interpretation import carving, citations
 
 def _mk_label(old_label, next_part):
     if old_label['text'].endswith(')'):
         return tree.extend_label(old_label, '-' + next_part, next_part)
     else:
         return tree.extend_label(old_label, '.' + next_part, next_part)
-interpParser = ParagraphParser("%s\.", _mk_label)
+interpParser = ParagraphParser(r"(?<!\$)%s\.", _mk_label)   # Cannot be proceeded by a $
 
 def build(text, part):
     """Create a tree representing the whole interpretation."""
@@ -44,6 +44,6 @@ def applicable_tree(text, section, parent_label):
     paragraph_header, body = utils.title_body(text)
     label_text = carving.build_label("", 
             carving.applicable_paragraph(paragraph_header, section))
-    return interpParser.build_paragraph_tree(body, 1, 
+    return interpParser.build_paragraph_tree(body, 1, citations.comment_citations(body),
             label=tree.extend_label(parent_label, label_text, label_text,
                 paragraph_header))

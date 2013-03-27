@@ -5,7 +5,8 @@ def build(tree, part):
     layer = {}
     for child in [cc for c in tree['children'] for cc in c['children']]:
         part, _, section, _ = child['label']['parts']
-        add_to_layer("%s.%s" % (part, section), child, layer)
+        if child['children'] or child['text'].strip():
+            add_to_layer("%s.%s" % (part, section), child, layer)
     return layer
 
 def build_element(match, interp, ontop_of=None):
