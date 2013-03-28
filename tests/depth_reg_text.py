@@ -1,14 +1,15 @@
 # vim: set fileencoding=utf-8 :
 
-from regs.depth import *
+from regs.depth.reg_text import *
+from regs.depth.tree import label
 from unittest import TestCase
 
-class DepthTest(TestCase):
-    def test_build_regulation_tree_no_sections(self):
+class DepthRegTextTest(TestCase):
+    def test_build_reg_text_tree_no_sections(self):
         text = "Regulation Title\nThen some more content"
         self.assertEqual(tree.node(text, label=label("201", ["201"], "Regulation Title")), 
-                build_regulation_tree(text, 201))
-    def test_build_regulation_tree_sections(self):
+                build_reg_text_tree(text, 201))
+    def test_build_reg_text_tree_sections(self):
         title = u"Regulation Title"
         sect1_title = u"§ 204.1 Best Section"
         sect1 = u"(a) I believe this is (b) the (1) best section (2) don't (c) you?"
@@ -20,7 +21,7 @@ class DepthTest(TestCase):
         text = "\n".join((title, sect1_title, sect1, sect2_title, sect2, sect4_title,
             sect4))
 
-        reg = build_regulation_tree(text, 204)
+        reg = build_reg_text_tree(text, 204)
         self.assertEqual(tree.label("204", ["204"], title), reg['label'])
         self.assertEqual("", reg['text'].strip())
         self.assertEqual(3, len(reg['children']))

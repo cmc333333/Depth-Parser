@@ -3,7 +3,6 @@
 import string
 from pyparsing import Word, Optional, oneOf, OneOrMore, Regex
 
-
 lower_alpha_sub = "(" + Word(string.ascii_lowercase) + ")"
 upper_alpha_sub = "(" + Word(string.ascii_uppercase) + ")"
 roman_sub = "(" + Word("ivxlcdm") + ")"

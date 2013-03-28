@@ -1,7 +1,6 @@
 # vim: set fileencoding=utf-8 :
 
 from regs.depth.section import *
-from regs.depth.super_paragraph import regParser
 from regs.depth.tree import label
 from unittest import TestCase
 

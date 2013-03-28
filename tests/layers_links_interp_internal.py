@@ -1,7 +1,7 @@
-from regs.depth.interpretation.citation import comment_citations
+from regs.layers.links.interp_internal import comment_citations
 from unittest import TestCase
 
-class DepthInterpretationCitationTest(TestCase):
+class LayersLinksInterpInternalTest(TestCase):
     def test_comment_citations(self):
         text = "This has (a)(1) no paragraph (b) commentary citations"
         self.assertEqual([], comment_citations(text))
