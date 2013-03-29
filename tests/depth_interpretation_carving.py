@@ -64,7 +64,7 @@ class DepthInterpretationCarvingTest(TestCase):
         self.assertEqual(p3_kw1_text, text[start:end])
         start, end = three[1]
         self.assertEqual(p3_kw2_text, text[start:end])
-    def test_split_by_header_mix(self):
+    def test_applicable_offsets_mix(self):
         p1_text = "Paragraph 3(b)(1)\n\n"
         p2_text = "3(b)(1)(iv)(Z) Some Definition\n"
         p3_text = "3(i) Another\n3 a\n"
@@ -76,6 +76,24 @@ class DepthInterpretationCarvingTest(TestCase):
 
         self.assertEqual([p1_text, p2_text, p3_text], 
                 [text[start:end] for start, end in three])
+    def test_build_label_immutable(self):
+        label = "Some label"
+        build_label(label, self.header('a'))
+        self.assertEqual("Some label", label)
+    def test_build_label_p_depth(self):
+        prefix = "104.22"
+        self.assertEqual(prefix + "(a)", build_label(prefix, self.header('a')))
+
+        match = self.header('b')
+        match.paragraph2 = EmptyClass()
+        match.paragraph2.id = '3'
+        self.assertEqual(prefix + "(b)(3)", build_label(prefix, match))
+
+        match.paragraph3 = EmptyClass()
+        match.paragraph3.id = 'iv'
+        match.paragraph4 = EmptyClass()
+        match.paragraph4.id = 'E'
+        self.assertEqual(prefix + "(b)(3)(iv)(E)", build_label(prefix, match))
     def test_applicable_paragraph_none(self):
         text = "No paragraph here\n"
         self.assertEqual(None, applicable_paragraph(text, 101))
@@ -104,21 +122,3 @@ class DepthInterpretationCarvingTest(TestCase):
         text = "Paragraph 4(b)(3)(i)"
         self.assertEqual(str(applicable_paragraph(text + "\n", 4)), 
                 str(applicable_paragraph(text, 4)))
-    def test_build_label_immutable(self):
-        label = "Some label"
-        build_label(label, self.header('a'))
-        self.assertEqual("Some label", label)
-    def test_build_label_p_depth(self):
-        prefix = "104.22"
-        self.assertEqual(prefix + "(a)", build_label(prefix, self.header('a')))
-
-        match = self.header('b')
-        match.paragraph2 = EmptyClass()
-        match.paragraph2.id = '3'
-        self.assertEqual(prefix + "(b)(3)", build_label(prefix, match))
-
-        match.paragraph3 = EmptyClass()
-        match.paragraph3.id = 'iv'
-        match.paragraph4 = EmptyClass()
-        match.paragraph4.id = 'E'
-        self.assertEqual(prefix + "(b)(3)(iv)(E)", build_label(prefix, match))

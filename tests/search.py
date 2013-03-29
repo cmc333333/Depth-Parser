@@ -1,4 +1,4 @@
-from regs.search import find_offsets, find_start
+from regs.search import *
 from unittest import TestCase
 
 class SearchTest(TestCase):
@@ -15,3 +15,39 @@ class SearchTest(TestCase):
         self.assertEqual((10,len(text)), find_offsets(text, lambda t:t.find("find")))
         self.assertEqual((0,len(text)), find_offsets(text, lambda t:t.find("Trying")))
         self.assertEqual(None, find_offsets(text, lambda t:t.find("xxxx")))
+    def test_find_segments_offsets(self):
+        def offsets(text, seg_id, exclude):
+            if text:
+                return (4, 9)
+        text = "This is some text, lalalala text text song."
+        segs = segments(text, offsets)
+        self.assertEqual(5, len(segs))
+        self.assertEqual((4,9), segs[0])
+        self.assertEqual((13,18), segs[1])
+        self.assertEqual((22,27), segs[2])
+        self.assertEqual((31,36), segs[3])
+        self.assertEqual((40,45), segs[4])
+    def test_find_segments_seg_ids(self):
+        seg_ids = []
+        def offsets(text, seg_id, exclude):
+            if text:
+                seg_ids.append(seg_id)
+                return (4, 9)
+        text = "This is some text, lalalala text text song."
+        segments(text, offsets)
+        self.assertEqual([0,1,2,3,4], seg_ids)
+    def test_find_segments_excludes(self):
+        excludes = []
+        def offsets(text, seg_id, exclude):
+            if text:
+                excludes.append(exclude)
+                return (4, 9)
+        text = "This is some text, lalalala text text song."
+        segments(text, offsets, [(20, 24), (3,5)])
+        self.assertEqual(5, len(excludes))
+        for i in range(5):
+            self.assertEqual(2, len(excludes[i]))
+        self.assertEqual([(20,24), (3,5)], excludes[0])
+        self.assertEqual([(11,15), (-6,-4)], excludes[1])
+        self.assertEqual((2,6), excludes[2][0])
+        self.assertEqual((-7,-3), excludes[3][0])

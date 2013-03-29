@@ -1,7 +1,8 @@
 from regs import utils
 from regs.depth import tree
 from regs.depth.paragraph import ParagraphParser
-from regs.depth.interpretation import carving, citations
+from regs.depth.interpretation import carving
+from regs.layers.links.interp_internal import comment_citations
 
 def _mk_label(old_label, next_part):
     if old_label['text'].endswith(')'):
@@ -44,6 +45,6 @@ def applicable_tree(text, section, parent_label):
     paragraph_header, body = utils.title_body(text)
     label_text = carving.build_label("", 
             carving.applicable_paragraph(paragraph_header, section))
-    return interpParser.build_paragraph_tree(body, 1, citations.comment_citations(body),
+    return interpParser.build_paragraph_tree(body, 1, comment_citations(body),
             label=tree.extend_label(parent_label, label_text, label_text,
                 paragraph_header))
