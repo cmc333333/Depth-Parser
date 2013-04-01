@@ -1,10 +1,11 @@
 import codecs
 import re
-from regs.depth import build_regulation_tree, tree
+from regs.depth.reg_text import build_reg_text_tree
+from regs.depth import tree
 from regs.depth.supplement import find_supplement_start
 from regs.depth.interpretation.tree import build as build_interp_tree
 from regs.layers import interpretation
-from regs.terms import build_layer
+from regs.layers.terms import build_layer
 from xml.sax.saxutils import quoteattr
 
 f = codecs.open('rege.txt', encoding='utf-8')
@@ -13,13 +14,10 @@ f.close()
 
 interp = rege[find_supplement_start(rege):]
 
-rege_tree = build_regulation_tree(rege, 1005)
+rege_tree = build_reg_text_tree(rege, 1005)
 interp_tree = build_interp_tree(interp, 1005)
 interp_layer = interpretation.build(interp_tree, 1005)
 term_layer = build_layer(rege_tree)
-
-import json 
-print json.dumps(interp_tree['children'][14]['children'][1]['children'])
 
 indexed_reg = {}
 def index_tree(tree):
