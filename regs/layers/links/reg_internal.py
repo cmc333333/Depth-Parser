@@ -27,22 +27,6 @@ multiple_paragraphs = "paragraphs" + sub_sub_paragraph + OneOrMore(
 any_citation = (multiple_section_citation | single_section_citation
         | single_paragraph | multiple_paragraphs)
 
-
-to_check = [
-    (u"§§ 205.7, 205.8, and 205.9", 13),
-    (u"§ 205.9(b)", 7),
-    (u"§ 205.9(a)", 7),
-    (u"§ 205.9(b)(1)", 10),
-    (u"§ 205.6(b) (1) and (2)", 14),
-    (u"§§ 205.6(b)(3) and 205.11(b)(1)(i)", 23),
-    (u"§\n205.11(c)(2)(ii)", 13),
-    (u"§ 205.9(b)(1)(i)(C)", 16)
-    ]
-
-
-for word, length in to_check:
-    assert(length == len(any_citation.parseString(word)))
-
 def internal_citations(plain_text):
     """
     Return a list of pairs representing the start and end positions of
