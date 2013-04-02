@@ -73,11 +73,14 @@ class ParagraphParser():
         """Find the start/end of the requested paragraph. Assumes the text does 
         not just up a p_level -- see build_paragraph_tree below."""
         start = self.find_paragraph_start(text, p_level, paragraph, exclude)
-        end = self.find_paragraph_start(text, p_level, paragraph + 1, exclude)
+        skip = len(p_levels[p_level][paragraph])
+        end = self.find_paragraph_start(text[skip:], p_level, paragraph + 1, exclude)
         if start == None:
             return None
         if end == None:
             end = len(text)
+        else:
+            end = end + skip
         return (start, end)
 
     def paragraphs(self, text, p_level, exclude = []):
