@@ -13,17 +13,18 @@ interpParser = ParagraphParser(r"(?<!\$)%s\.", _mk_label)   # Cannot be proceede
 
 def build(text, part):
     """Create a tree representing the whole interpretation."""
-    label = tree.label("%d-Interpretations" % part, [str(part), "Interpretations"], 
-            "Supplement I to Part %d" % part)
-    sections = carving.sections(text, part)
+    title, body = utils.title_body(text)
+    label = tree.label("%d-Interpretations" % part, [str(part), "Interpretations"],
+            title)
+    sections = carving.sections(body, part)
     if sections:
         children = []
         for start, end in sections:
-            section_text = text[start:end]
+            section_text = body[start:end]
             children.append(section_tree(section_text, part, label))
-        return tree.node(text[:sections[0][0]], children, label)
+        return tree.node(body[:sections[0][0]], children, label)
     else:
-        return tree.node(text, label=label)
+        return tree.node(body, label=label)
 
 def section_tree(text, part, parent_label):
     """Tree representing a single section within the interpretation."""

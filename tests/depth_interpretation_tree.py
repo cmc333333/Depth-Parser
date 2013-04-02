@@ -66,10 +66,10 @@ class DepthInterpretationTreeTest(TestCase):
     def test_build_with_subs(self):
         text = "Something here\nSection 100.22\nmore more\nSection 100.5\nand more"
         result = build(text, 100)
-        self.assertEqual("Something here\n", result['text'])
+        self.assertEqual("", result['text'].strip())
         self.assertEqual("100-Interpretations", result['label']['text'])
         self.assertEqual(["100", "Interpretations"], result['label']['parts'])
-        self.assertEqual("Supplement I to Part 100", result['label']['title'])
+        self.assertEqual("Something here", result['label']['title'])
         self.assertEqual(2, len(result['children']))
 
         node = result['children'][0]
@@ -84,12 +84,13 @@ class DepthInterpretationTreeTest(TestCase):
         self.assertEqual(['100', 'Interpretations', '5'], node['label']['parts'])
         self.assertEqual(0, len(node['children']))
     def test_build_without_subs(self):
-        text = "Something here\nAnd then more\nSome more\nAnd yet another line"
-        result = build(text, 100)
-        self.assertEqual(text, result['text'])
+        title = "Something here"
+        body = "\nAnd then more\nSome more\nAnd yet another line"
+        result = build(title + body, 100)
+        self.assertEqual(body, result['text'])
         self.assertEqual("100-Interpretations", result['label']['text'])
         self.assertEqual(["100", "Interpretations"], result['label']['parts'])
-        self.assertEqual("Supplement I to Part 100", result['label']['title'])
+        self.assertEqual(title, result['label']['title'])
         self.assertEqual(0, len(result['children']))
     def test_section_tree_label(self):
         """The section tree should include the section header as label"""
