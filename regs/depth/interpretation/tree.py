@@ -30,7 +30,7 @@ def section_tree(text, part, parent_label):
     title, body = utils.title_body(text)
     section = carving.get_section_number(title, part)
     offsets = carving.applicable_offsets(body, section)
-    label = tree.extend_label(parent_label, "-" + section, section)
+    label = tree.extend_label(parent_label, "-" + section, section, title)
     if offsets:
         children = []
         for start, end in offsets:

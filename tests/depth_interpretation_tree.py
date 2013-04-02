@@ -91,3 +91,11 @@ class DepthInterpretationTreeTest(TestCase):
         self.assertEqual(["100", "Interpretations"], result['label']['parts'])
         self.assertEqual("Supplement I to Part 100", result['label']['title'])
         self.assertEqual(0, len(result['children']))
+    def test_section_tree_label(self):
+        """The section tree should include the section header as label"""
+        title = "Section 105.11 This is a section title"
+        body = "Body of the interpretation's section"
+        non_title = "\n" + body
+        result = section_tree(title + non_title, 105, tree.label("abcd"))
+        self.assertTrue('title' in result['label'])
+        self.assertEqual(title, result['label']['title'])
