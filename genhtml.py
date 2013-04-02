@@ -19,6 +19,8 @@ interp_tree = build_interp_tree(interp, 1005)
 interp_layer = interpretation.build(interp_tree, 1005)
 term_layer = build_layer(rege_tree)
 
+rege_tree['children'].append(interp_tree)
+
 indexed_reg = {}
 def index_tree(tree):
     indexed_reg[tree['label']['text']] = tree
@@ -59,9 +61,10 @@ def print_node(node, relevant_terms = None):
         doc.write("<a title=__TITLE__%d" % len(titles) + " href='#not-done'>?</a>")
         titles.append(quoteattr(as_text(indexed_interp[interp_layer[lab]['interpretation']]).strip()))
     if 'title' in node['label']:
-        doc.write('<h2>')
+        level = len(node['label']['parts'])
+        doc.write('<h%d>' % level)
         doc.write(node['label']['title'])
-        doc.write('</h2>')
+        doc.write('</h%d>' % level)
         
     text = node['text']
     #   interpretations
