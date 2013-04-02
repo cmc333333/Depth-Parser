@@ -118,3 +118,15 @@ class DepthInterpretationTreeTest(TestCase):
         self.assertEqual(sub4, tree['children'][0]['children'][3]['text'])
         self.assertEqual(sub5, tree['children'][0]['children'][4]['text'])
         self.assertEqual(sub6, tree['children'][0]['children'][5]['text'])
+    def test_interpParser_section(self):
+        """Make sure a bug with a label as part of a section number is fixed."""
+        text = "1. some section referencing 2002.99"
+        tree = interpParser.build_paragraph_tree(text, 1)
+        self.assertTrue(1, len(tree['children']))
+        self.assertEqual(text, tree['children'][0]['text'])
+    def test_interpParser_appendix(self):
+        """Confirm a bug with a label as part of an appendix reference is fixed."""
+        text = "1. some section referencing Appendix-2. Then more content"
+        tree = interpParser.build_paragraph_tree(text, 1)
+        self.assertTrue(1, len(tree['children']))
+        self.assertEqual(text, tree['children'][0]['text'])

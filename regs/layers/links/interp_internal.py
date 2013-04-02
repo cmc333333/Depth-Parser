@@ -16,8 +16,8 @@ upper_alpha_dec = "." + Word(string.ascii_uppercase)
 roman_dec = "." + Word("ivxlcdm")
 digit_dec = Word(string.digits)
 
-comment = "comment" + reg_ref + "-" + digit_dec + Optional(roman_dec + 
-        Optional(upper_alpha_dec))
+comment = "comment" + reg_ref + "-" + (digit_dec + Optional(roman_dec + 
+        Optional(upper_alpha_dec))).leaveWhitespace()   # do not account for whitespace
 
 def comment_citations(plain_text):
     """

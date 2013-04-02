@@ -9,7 +9,8 @@ def _mk_label(old_label, next_part):
         return tree.extend_label(old_label, '-' + next_part, next_part)
     else:
         return tree.extend_label(old_label, '.' + next_part, next_part)
-interpParser = ParagraphParser(r"(?<!\$)%s\.", _mk_label)   # Cannot be proceeded by a $
+#   Can only be preceded by white space or a start of line
+interpParser = ParagraphParser(r"(?<![^\s])%s\.", _mk_label)
 
 def build(text, part):
     """Create a tree representing the whole interpretation."""
