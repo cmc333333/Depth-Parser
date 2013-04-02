@@ -38,29 +38,32 @@ class ParagraphParser():
         (e.g. ii) is between the first match and the second. If so, skip it, as that
         implies the first match was a subparagraph."""
         subparagraph_hazards = self.matching_subparagraph_ids(p_level, paragraph)
-        starts = starts + [len(text)]
+        starts = starts + [(len(text), len(text))]
         for i in range(1, len(starts)):
-            s_text = text[starts[i-1]:starts[i]]
-            s_exclude = [(e[0] + starts[i-1], e[1] + starts[i-1]) for e in exclude]
+            _, prev_end = starts[i-1]
+            next_start, _ = starts[i]
+            s_text = text[prev_end:next_start]
+            s_exclude = [(e_start + prev_end, e_end + prev_end) 
+                    for e_start, e_end in exclude]
             is_subparagraph = False
             for hazard_level, hazard_idx in subparagraph_hazards:
-                if self.find_paragraph_start(s_text, hazard_level, hazard_idx + 1,
+                if self.find_paragraph_start_match(s_text, hazard_level, hazard_idx + 1,
                         s_exclude):
                     is_subparagraph = True
             if not is_subparagraph:
                 return starts[i-1]
 
-    def find_paragraph_start(self, text, p_level, paragraph, exclude = []):
-        """Find the position for the start of the requested label. p_Level is one
-        of 0,1,2,3; paragraph is the index within that label. Return None if not
-        present. Does not return results in the exclude list (a list of
-        start/stop indices). """
+    def find_paragraph_start_match(self, text, p_level, paragraph, exclude = []):
+        """Find the positions for the start and end of the requested label. p_Level is
+        one of 0,1,2,3; paragraph is the index within that label. Return None if not
+        present. Does not return results in the exclude list (a list of start/stop
+        indices). """
         if len(p_levels) <= p_level or len(p_levels[p_level]) <= paragraph:
             return None
-        match_starts = [m.start() for m 
+        match_starts = [(m.start(), m.end()) for m 
                 in re.finditer(self.p_regex % p_levels[p_level][paragraph], text)]
-        match_starts = [m for m in match_starts
-                if all([m < e[0] or m > e[1]  for e in exclude])]
+        match_starts = [(start, end) for start,end in match_starts
+                if all([end < e_start or start > e_end  for e_start, e_end in exclude])]
 
         if len(match_starts) == 0:
             return None
@@ -72,16 +75,17 @@ class ParagraphParser():
     def paragraph_offsets(self, text, p_level, paragraph, exclude = []):
         """Find the start/end of the requested paragraph. Assumes the text does 
         not just up a p_level -- see build_paragraph_tree below."""
-        start = self.find_paragraph_start(text, p_level, paragraph, exclude)
-        skip = len(p_levels[p_level][paragraph])
-        end = self.find_paragraph_start(text[skip:], p_level, paragraph + 1, exclude)
+        start = self.find_paragraph_start_match(text, p_level, paragraph, exclude)
         if start == None:
             return None
+        id_start, id_end = start
+        end = self.find_paragraph_start_match(text[id_end:], p_level, paragraph + 1, 
+                [(e_start - id_end, e_end - id_end) for e_start, e_end in exclude])
         if end == None:
             end = len(text)
         else:
-            end = end + skip
-        return (start, end)
+            end = end[0] + id_end
+        return (id_start, end)
 
     def paragraphs(self, text, p_level, exclude = []):
         """Return a list of paragraph offsets defined by the level param."""

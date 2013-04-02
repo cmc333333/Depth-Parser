@@ -18,47 +18,53 @@ class DepthParagraphTest(TestCase):
         self.assertEqual(0, len(matches))
     def test_best_start(self):
         text = "This is my (ii) awesome text with a subparagraph in it."
-        self.assertEqual(len(text), self.regParser.best_start(text, 0, 8, [0, len(text)]))
-        self.assertEqual(0, self.regParser.best_start(text, 0, 9, [0, len(text)]))
-    def test_find_paragraph_start_success(self):
+        begin_match = (0,0)
+        end_match = (len(text), len(text))
+        starts = [begin_match, end_match]
+        self.assertEqual(end_match, self.regParser.best_start(text, 0, 8, starts))
+        self.assertEqual(begin_match, self.regParser.best_start(text, 0, 9, starts))
+    def test_find_paragraph_start_match_success(self):
         """Simple label checks."""
         text = "This (a) is (Z) the first (1) section for (2) something\n"
         text += "and then (iii) another thing goes here."
-        self.assertEqual(5, self.regParser.find_paragraph_start(text, 0, 0))
-        self.assertEqual(None, self.regParser.find_paragraph_start(text, 0, 1))
-        self.assertEqual(26, self.regParser.find_paragraph_start(text, 1, 0))
-        self.assertEqual(42, self.regParser.find_paragraph_start(text, 1, 1))
-        self.assertEqual(None, self.regParser.find_paragraph_start(text, 1, 2))
-        self.assertEqual(None, self.regParser.find_paragraph_start(text, 2, 0))
-        self.assertEqual(None, self.regParser.find_paragraph_start(text, 2, 1))
-        self.assertEqual(65, self.regParser.find_paragraph_start(text, 2, 2))
-        self.assertEqual(None, self.regParser.find_paragraph_start(text, 2, 3))
-        self.assertEqual(None, self.regParser.find_paragraph_start(text, 3, 0))
-        self.assertEqual(12, self.regParser.find_paragraph_start(text, 3, 25))
-        self.assertEqual(None, self.regParser.find_paragraph_start(text, 3, 26))
-    def test_find_paragraph_start_excludes(self):
+        self.assertEqual((5,8), self.regParser.find_paragraph_start_match(text, 0, 0))
+        self.assertEqual(None, self.regParser.find_paragraph_start_match(text, 0, 1))
+        self.assertEqual((26,29), self.regParser.find_paragraph_start_match(text, 1, 0))
+        self.assertEqual((42,45), self.regParser.find_paragraph_start_match(text, 1, 1))
+        self.assertEqual(None, self.regParser.find_paragraph_start_match(text, 1, 2))
+        self.assertEqual(None, self.regParser.find_paragraph_start_match(text, 2, 0))
+        self.assertEqual(None, self.regParser.find_paragraph_start_match(text, 2, 1))
+        self.assertEqual((65,70), self.regParser.find_paragraph_start_match(text, 2, 2))
+        self.assertEqual(None, self.regParser.find_paragraph_start_match(text, 2, 3))
+        self.assertEqual(None, self.regParser.find_paragraph_start_match(text, 3, 0))
+        self.assertEqual((12,15), self.regParser.find_paragraph_start_match(text, 3, 25))
+        self.assertEqual(None, self.regParser.find_paragraph_start_match(text, 3, 26))
+    def test_find_paragraph_start_match_excludes(self):
         """Excluded ranges should not be included in results."""
         text = "This (a) is (a) a test (a) section for (a) testing."
-        self.assertEqual(5, self.regParser.find_paragraph_start(text, 0, 0))
-        self.assertEqual(5, self.regParser.find_paragraph_start(text, 0, 0, []))
-        self.assertEqual(5, self.regParser.find_paragraph_start(text, 0, 0, 
+        self.assertEqual((5,8), self.regParser.find_paragraph_start_match(text, 0, 0))
+        self.assertEqual((5,8), self.regParser.find_paragraph_start_match(text, 0, 0, []))
+        self.assertEqual((5,8), self.regParser.find_paragraph_start_match(text, 0, 0, 
             [(10,len(text))]))
-        self.assertEqual(5, self.regParser.find_paragraph_start(text, 0, 0, [(0,1)]))
-        self.assertEqual(12, self.regParser.find_paragraph_start(text, 0, 0, [(0,10)]))
-        self.assertEqual(12, self.regParser.find_paragraph_start(text, 0, 0, 
+        self.assertEqual((5,8), self.regParser.find_paragraph_start_match(text, 0, 0, 
+            [(0,1)]))
+        self.assertEqual((12,15), self.regParser.find_paragraph_start_match(text, 0, 0, 
+            [(0,10)]))
+        self.assertEqual((12,15), self.regParser.find_paragraph_start_match(text, 0, 0, 
             [(0,1), (4,9)]))
-        self.assertEqual(12, self.regParser.find_paragraph_start(text, 0, 0, [(5,5)]))
-        self.assertEqual(39, self.regParser.find_paragraph_start(text, 0, 0, 
+        self.assertEqual((12,15), self.regParser.find_paragraph_start_match(text, 0, 0, 
+            [(5,5)]))
+        self.assertEqual((39,42), self.regParser.find_paragraph_start_match(text, 0, 0, 
             [(5,7), (10, 25)]))
-        self.assertEqual(None, self.regParser.find_paragraph_start(text, 0, 0, 
+        self.assertEqual(None, self.regParser.find_paragraph_start_match(text, 0, 0, 
             [(0,len(text))]))
-    def test_find_paragraph_start_is(self):
+    def test_find_paragraph_start_match_is(self):
         """Test the case where we are looking for paragraph (i) (the letter,) but we run
         into (i) (the roman numeral.)"""
         text1 = "(h) Paragraph (1) H has (i) some (ii) sub (iii) sections but "
         text2 = "(i) this paragraph does not."
-        self.assertEqual(len(text1), 
-                self.regParser.find_paragraph_start(text1+text2, 0, 8))
+        self.assertEqual((len(text1), len(text1)+3), 
+                self.regParser.find_paragraph_start_match(text1+text2, 0, 8))
     def test_paragraph_offsets_present(self):
         """Test that section_offsets works as expected for good input."""
         text = "This (a) is a good (b) test for (c) something like this."""
