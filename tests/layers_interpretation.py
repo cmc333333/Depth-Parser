@@ -42,6 +42,16 @@ class LayersInterpretationTest(TestCase):
         self.assertTrue('interpretation' in layer['(p1p1p1)'])
         self.assertFalse('keyterms' in layer['(p1p1p1)'])
         self.assertEqual("other", layer['(p1p1p1)']['interpretation'])
+    def test_add_to_layer_appendix(self):
+        layer = {}
+        node = tree.node(label=tree.label("some_section", [None]*3,
+            "Appendix F"))
+        add_to_layer("prefix", node, layer)
+
+        self.assertTrue("prefixF" in layer)
+        self.assertTrue("interpretation" in layer['prefixF'])
+        self.assertFalse("keyterms" in layer['prefixF'])
+        self.assertEqual("some_section", layer["prefixF"]['interpretation'])
     def test_build_element_interp(self):
         match = self.header('a')
         el = build_element(match, "Some thing here")
@@ -62,7 +72,8 @@ class LayersInterpretationTest(TestCase):
         self.assertFalse('interpretation' in el)
         self.assertTrue('keyterms' in el)
         self.assertEqual([
-            ('Awesome KeyTerm', 'Some Interp'), (match.keyterm.term, 'some_interp')
+            ('Awesome KeyTerm', 'Some Interp'), 
+            (match.keyterm.term, 'some_interp')
             ], el['keyterms'])
     def test_build_element_ontop(self):
         match = self.header('a')
@@ -74,26 +85,34 @@ class LayersInterpretationTest(TestCase):
         self.assertEqual([('a', 'b')], el['keyterms'])
     @patch('regs.layers.interpretation.add_to_layer')
     def test_build(self, add_to_layer):
-        interp1 = tree.node("Message", label=tree.label(parts=['a', 'b', 'i', '1']))
-        interp2 = tree.node("Other", label=tree.label(parts=['b', 'b', 'h', '3']))
+        interp1 = tree.node("Message", 
+                label=tree.label(parts=['100', 'Interps', '1', '1']))
+        interp2 = tree.node("Other", 
+                label=tree.label(parts=['100', 'Interps', '1', '3']))
         interp3 = tree.node("\n", children=[tree.node()], 
-                label=tree.label(parts=['c', 'b', 'g', '4']))
+                label=tree.label(parts=['100', 'Interps', '3', '4']))
         interp4 = tree.node("Some Content", children=[tree.node()], 
-                label=tree.label(parts=['d', 'b', 'f', '4']))
+                label=tree.label(parts=['100', 'Interps', '5', '7']))
+        appendix = tree.node("Appendix", 
+                label=tree.label(parts=['100', 'Interps', 'Q']))
         root = tree.node("Start of Supplement", children = [
             tree.node("Section 1", children = [
                 interp1,
-                tree.node("\n\n", label=tree.label(parts=['a', 'b', 'c', '2'])),
+                tree.node("\n\n", 
+                    label=tree.label(parts=['100', 'Interps', '1', '2'])),
                 interp2
-                ]),
-            tree.node("Section 3", children = [interp3]),
+                ], label=tree.label(parts=['100', 'Interps', '1'])),
+            tree.node("Section 3", children = [interp3],
+                label=tree.label(parts=['100', 'Interps', '3'])),
             tree.node("Section 5", children = [
-                tree.node("\n\n", label=tree.label(parts=['a', 'b', 'c', '2'])),
+                tree.node("\n\n", 
+                    label=tree.label(parts=['100', 'Interps', '5', '21'])), 
                 interp4
-                ])
+                ], label=tree.label(parts=['100', 'Interps', '5'])),
+            appendix
             ])
         layer = build(root, 201)
-        self.assertEqual(["a.i", "b.h", "c.g", "d.f"], 
+        self.assertEqual(["100.1", "100.1", "100.3", "100.5", "100.Q"], 
                 [args[0] for args,_ in add_to_layer.call_args_list])
-        self.assertEqual([interp1, interp2, interp3, interp4],
+        self.assertEqual([interp1, interp2, interp3, interp4, appendix],
                 [args[1] for args,_ in add_to_layer.call_args_list])
