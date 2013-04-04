@@ -30,7 +30,8 @@ def applicable_offsets(plain_text, section):
     return starts
 
 def build_label(label_prefix, match):
-    """Create a string to represent this label based on the pyparsing match."""
+    """Create a string to represent this label based on the pyparsing
+    match."""
     label = str(label_prefix)   # copy
     for p in range(1,5):
         attr = 'paragraph' + str(p)
@@ -58,10 +59,11 @@ def _applicable_parser(section):
     return whole_par.setResultsName("whole") | keyterm.setResultsName("keyterm")
 
 def applicable_paragraph(line, section):
-    """Return a pyparsing match for whatever paragraph is applicable to this line (the
-    header)"""
+    """Return a pyparsing match for whatever paragraph is applicable to this
+    line (the header)"""
     if not line.endswith("\n"):
         line = line + "\n"
-    matches = [match for match, _, _ in _applicable_parser(section).scanString(line)]
+    matches = [match for match, _, _ in 
+            _applicable_parser(section).scanString(line)]
     if matches:
         return matches[0]

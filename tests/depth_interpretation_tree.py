@@ -28,17 +28,20 @@ class DepthInterpretationTreeTest(TestCase):
         self.assertEqual(3, len(node['children']))
 
         node = a_tree['children'][1]['children'][0]
-        self.assertEqual(tree.label("(b)-2.i", ["(b)", "2", "i"]), node['label'])
+        self.assertEqual(tree.label("(b)-2.i", ["(b)", "2", "i"]), 
+                node['label'])
         self.assertEqual(depth2i, node['text'])
         self.assertEqual(0, len(node['children']))
 
         node = a_tree['children'][1]['children'][1]
-        self.assertEqual(tree.label("(b)-2.ii", ["(b)", "2", "ii"]), node['label'])
+        self.assertEqual(tree.label("(b)-2.ii", ["(b)", "2", "ii"]), 
+                node['label'])
         self.assertEqual(depth2ii, node['text'])
         self.assertEqual(0, len(node['children']))
 
         node = a_tree['children'][1]['children'][2]
-        self.assertEqual(tree.label("(b)-2.iii", ["(b)", "2", "iii"]), node['label'])
+        self.assertEqual(tree.label("(b)-2.iii", ["(b)", "2", "iii"]), 
+                node['label'])
         self.assertEqual(depth2iii, node['text'])
         self.assertEqual(0, len(node['children']))
     @patch('regs.depth.interpretation.tree.applicable_tree')
@@ -47,7 +50,8 @@ class DepthInterpretationTreeTest(TestCase):
         title = "Section 105.11 This is a section title"
         body = "Body of the interpretation's section"
         non_title = "\n" + body
-        applicable_tree.return_value = tree.node("An interpretation")   # sub tree
+        # sub tree
+        applicable_tree.return_value = tree.node("An interpretation")   
         applicable_offsets.return_value = [(2,5), (5,8), (10, 12)]
         result = section_tree(title + non_title, 105, tree.label("abcd"))
         self.assertEqual(non_title[:2], result['text'])
@@ -64,7 +68,8 @@ class DepthInterpretationTreeTest(TestCase):
         self.assertEqual("abcd-11", result['label']['text'])
         self.assertEqual(0, len(result['children']))
     def test_build_with_subs(self):
-        text = "Something here\nSection 100.22\nmore more\nSection 100.5\nand more"
+        text = "Something here\nSection 100.22\nmore more\nSection 100.5\n"
+        text += "and more"
         result = build(text, 100)
         self.assertEqual("", result['text'].strip())
         self.assertEqual("100-Interpretations", result['label']['text'])
@@ -75,13 +80,15 @@ class DepthInterpretationTreeTest(TestCase):
         node = result['children'][0]
         self.assertEqual("\nmore more\n", node['text'])
         self.assertEqual('100-Interpretations-22', node['label']['text'])
-        self.assertEqual(['100', 'Interpretations', '22'], node['label']['parts'])
+        self.assertEqual(['100', 'Interpretations', '22'], 
+                node['label']['parts'])
         self.assertEqual(0, len(node['children']))
 
         node = result['children'][1]
         self.assertEqual("\nand more", node['text'])
         self.assertEqual('100-Interpretations-5', node['label']['text'])
-        self.assertEqual(['100', 'Interpretations', '5'], node['label']['parts'])
+        self.assertEqual(['100', 'Interpretations', '5'], 
+                node['label']['parts'])
         self.assertEqual(0, len(node['children']))
     def test_build_without_subs(self):
         title = "Something here"
@@ -108,7 +115,7 @@ class DepthInterpretationTreeTest(TestCase):
         sub4 = 'iv. Four '
         sub5 = 'v. Five '
         sub6 = 'vi. Six'
-        text = "1. This is some section\n" + sub1 + sub2 + sub3 + sub4 + sub5 + sub6
+        text = "1. This is some section\n" + sub1+sub2+sub3+sub4+sub5+sub6
         tree = interpParser.build_paragraph_tree(text, 1)
         self.assertTrue(1, len(tree['children']))
         self.assertTrue(6, len(tree['children'][0]['children']))
@@ -119,13 +126,15 @@ class DepthInterpretationTreeTest(TestCase):
         self.assertEqual(sub5, tree['children'][0]['children'][4]['text'])
         self.assertEqual(sub6, tree['children'][0]['children'][5]['text'])
     def test_interpParser_section(self):
-        """Make sure a bug with a label as part of a section number is fixed."""
+        """Make sure a bug with a label as part of a section number is
+        fixed."""
         text = "1. some section referencing 2002.99"
         tree = interpParser.build_paragraph_tree(text, 1)
         self.assertTrue(1, len(tree['children']))
         self.assertEqual(text, tree['children'][0]['text'])
     def test_interpParser_appendix(self):
-        """Confirm a bug with a label as part of an appendix reference is fixed."""
+        """Confirm a bug with a label as part of an appendix reference is
+        fixed."""
         text = "1. some section referencing Appendix-2. Then more content"
         tree = interpParser.build_paragraph_tree(text, 1)
         self.assertTrue(1, len(tree['children']))

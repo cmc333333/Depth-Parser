@@ -37,7 +37,8 @@ class DepthInterpretationCarvingTest(TestCase):
         begin, end = interps[1]
         self.assertEqual(section_65, text[begin:end])
     def test_get_section_number(self):
-        self.assertEqual("101", get_section_number("Section 55.101 Something Here", 55))
+        self.assertEqual("101", 
+                get_section_number("Section 55.101 Something Here", 55))
     def test_applicable_offsets_paragraphs(self):
         p4_text = "Paragraph 4(z)\nParagraph Invalid\n"
         text = "Paragraph 3(b)(c)\n\n\n" + p4_text
@@ -82,7 +83,8 @@ class DepthInterpretationCarvingTest(TestCase):
         self.assertEqual("Some label", label)
     def test_build_label_p_depth(self):
         prefix = "104.22"
-        self.assertEqual(prefix + "(a)", build_label(prefix, self.header('a')))
+        self.assertEqual(prefix + "(a)", 
+                build_label(prefix, self.header('a')))
 
         match = self.header('b')
         match.paragraph2 = EmptyClass()

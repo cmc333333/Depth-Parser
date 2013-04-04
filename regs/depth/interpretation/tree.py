@@ -15,7 +15,8 @@ interpParser = ParagraphParser(r"(?<![^\s])%s\.", _mk_label)
 def build(text, part):
     """Create a tree representing the whole interpretation."""
     title, body = utils.title_body(text)
-    label = tree.label("%d-Interpretations" % part, [str(part), "Interpretations"],
+    label = tree.label("%d-Interpretations" % part, [str(part), 
+        "Interpretations"],
             title)
     sections = carving.sections(body, part)
     if sections:
