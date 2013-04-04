@@ -16,10 +16,10 @@ def appendix_tree(text, label):
     """Build a tree representing an appendix interpretation (as opposed to
     an interpretation of a section)."""
     title, body = utils.title_body(text)
-    label_text = 'Appendix ' + carving.get_appendix_letter(title)
+    label_text = carving.get_appendix_letter(title)
     return interpParser.build_paragraph_tree(body, 1,
             comment_citations(body),
-            label=tree.extend_label(label, label_text, label_text, title)
+            label=tree.extend_label(label, '-' + label_text, label_text, title)
             )
 
 def build(text, part):

@@ -7,9 +7,11 @@ class DepthInterpretationTreeTest(TestCase):
     def test_appendix_tree(self):
         title = "Appendix Q - The Questions"
         body = "1. Regulation text 2. Some more i. With ii. Subparts"
-        node = appendix_tree(title + "\n" + body, tree.label())
+        node = appendix_tree(title + "\n" + body, tree.label('Start'))
         self.assertTrue('title' in node['label'])
         self.assertEqual(title, node['label']['title'])
+        self.assertEqual('Start-Q', node['label']['text'])
+        self.assertEqual(['Q'], node['label']['parts'])
         self.assertEqual(2, len(node['children']))
         self.assertEqual(2, len(node['children'][1]['children']))
     def test_applicable_tree(self):
