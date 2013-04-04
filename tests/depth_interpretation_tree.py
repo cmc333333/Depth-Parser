@@ -4,6 +4,14 @@ from regs.depth.interpretation.tree import *
 from unittest import TestCase
 
 class DepthInterpretationTreeTest(TestCase):
+    def test_appendix_tree(self):
+        title = "Appendix Q - The Questions"
+        body = "1. Regulation text 2. Some more i. With ii. Subparts"
+        node = appendix_tree(title + "\n" + body, tree.label())
+        self.assertTrue('title' in node['label'])
+        self.assertEqual(title, node['label']['title'])
+        self.assertEqual(2, len(node['children']))
+        self.assertEqual(2, len(node['children'][1]['children']))
     def test_applicable_tree(self):
         title = "Paragraph 3(b)"
         depth1 = "1. Inline depth and then\n"
@@ -99,6 +107,22 @@ class DepthInterpretationTreeTest(TestCase):
         self.assertEqual(["100", "Interpretations"], result['label']['parts'])
         self.assertEqual(title, result['label']['title'])
         self.assertEqual(0, len(result['children']))
+    def test_build_with_appendices(self):
+        title = "Awesome Interpretations"
+        sec1 = "Section 199.22 Interps"
+        sec2 = "Section 199.11 Interps Vengence"
+        app1 = "Appendix W - Whoa whoa whoa"
+        app2 = "Appendix R - Redrum"
+        node = build("\n".join([title, sec1, sec2, app1, app2]), 199)
+        self.assertTrue('title' in node['label'])
+        self.assertEqual(title, node['label']['title'])
+        self.assertEqual(4, len(node['children']))
+        for i in range(4):
+            self.assertTrue('title' in node['children'][i]['label'])
+        self.assertEqual(sec1, node['children'][0]['label']['title'])
+        self.assertEqual(sec2, node['children'][1]['label']['title'])
+        self.assertEqual(app1, node['children'][2]['label']['title'])
+        self.assertEqual(app2, node['children'][3]['label']['title'])
     def test_section_tree_label(self):
         """The section tree should include the section header as label"""
         title = "Section 105.11 This is a section title"

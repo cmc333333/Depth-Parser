@@ -39,6 +39,23 @@ class DepthInterpretationCarvingTest(TestCase):
     def test_get_section_number(self):
         self.assertEqual("101", 
                 get_section_number("Section 55.101 Something Here", 55))
+    def test_find_next_appendix_offsets(self):
+        part1 = "This is \nAppendix Q - Some title\nBody body\n"
+        part2 = "Appendix B - Another\nThe reckoning."
+        self.assertEqual((9, len(part1)), 
+                find_next_appendix_offsets(part1 + part2))
+    def test_appendices(self):
+        part0 = "Something something\n"
+        app1 = "Appendix R - Some title\nThen some\nbody content here\n"
+        app2 = "Appendix M - Another\nContent content\n"
+        app3 = "Appendix L - Once more\nAppendix not\n"
+        self.assertEqual([
+            (len(part0), len(part0+app1)), 
+            (len(part0+app1), len(part0+app1+app2)),
+            (len(part0+app1+app2), len(part0+app1+app2+app3))
+            ], appendicies(part0 + app1 + app2 + app3))
+    def test_get_appendix_letter(self):
+        self.assertEqual("M", get_appendix_letter("Appendix M - More Info"))
     def test_applicable_offsets_paragraphs(self):
         p4_text = "Paragraph 4(z)\nParagraph Invalid\n"
         text = "Paragraph 3(b)(c)\n\n\n" + p4_text

@@ -12,21 +12,38 @@ def _mk_label(old_label, next_part):
 #   Can only be preceded by white space or a start of line
 interpParser = ParagraphParser(r"(?<![^\s])%s\.", _mk_label)
 
+def appendix_tree(text, label):
+    """Build a tree representing an appendix interpretation (as opposed to
+    an interpretation of a section)."""
+    title, body = utils.title_body(text)
+    label_text = 'Appendix ' + carving.get_appendix_letter(title)
+    return interpParser.build_paragraph_tree(body, 1,
+            comment_citations(body),
+            label=tree.extend_label(label, label_text, label_text, title)
+            )
+
 def build(text, part):
     """Create a tree representing the whole interpretation."""
     title, body = utils.title_body(text)
     label = tree.label("%d-Interpretations" % part, [str(part), 
         "Interpretations"],
             title)
+    appendix_offsets = carving.appendicies(body)
+    appendicies = []
+    if appendix_offsets:
+        for start, end in appendix_offsets:
+            appendicies.append(appendix_tree(body[start:end], label))
+        body = body[:appendix_offsets[0][0]]
+
     sections = carving.sections(body, part)
     if sections:
         children = []
         for start, end in sections:
             section_text = body[start:end]
             children.append(section_tree(section_text, part, label))
-        return tree.node(body[:sections[0][0]], children, label)
+        return tree.node(body[:sections[0][0]], children + appendicies, label)
     else:
-        return tree.node(body, label=label)
+        return tree.node(body, appendicies, label)
 
 def section_tree(text, part, parent_label):
     """Tree representing a single section within the interpretation."""

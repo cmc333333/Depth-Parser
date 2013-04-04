@@ -8,21 +8,34 @@ def find_next_section_offsets(text, part):
     def find_start(text):
         return search.find_start(text, u"Section", ur"%d.\d+" % part)
     return search.find_offsets(text, find_start)
-
 def sections(text, part):
-    """Return a list of interpretation offsets."""
+    """Return a list of section offsets."""
     def offsets_fn(remaining_text, idx, excludes):
         return find_next_section_offsets(remaining_text, part)
     return search.segments(text, offsets_fn)
-
 def get_section_number(title, part):
     """Pull out section number from header. Assumes proper format"""
     return re.match(r'^Section %d.(\d+)(.*)$' % part, title).group(1)
 
+def find_next_appendix_offsets(text):
+    """Find the start/end of the next appendix"""
+    def find_start(text):
+        return search.find_start(text, u"Appendix", ur"[A-Z]")
+    return search.find_offsets(text, find_start)
+def appendicies(text):
+    """Return a list of appendix offsets."""
+    def offsets_fn(remaining_text, idx, excludes):
+        return find_next_appendix_offsets(remaining_text)
+    return search.segments(text, offsets_fn)
+def get_appendix_letter(title):
+    """Pull out appendix letter from header. Assumes proper format"""
+    return re.match(r'^Appendix ([A-Z])(.*)$', title).group(1)
+
 def applicable_offsets(plain_text, section):
     """Return offsets for the text which is applicable only to a certain
     paragraph/keyterm in the regulation."""
-    starts = [start for _,start,_ in _applicable_parser(section).scanString(plain_text)]
+    starts = [start for _,start,_ in 
+            _applicable_parser(section).scanString(plain_text)]
     starts.append(len(plain_text))
     for i in range(1, len(starts)):
         starts[i-1] = (starts[i-1], starts[i])
