@@ -1,3 +1,4 @@
+import re
 from regs import search
 
 def is_title_case(line):
@@ -12,12 +13,14 @@ def find_next_segment(text):
     """Find the start/end of the next segment. A segment for the generic
     appendix parser is something separated by a title-ish line (a short line
     with title-case words)."""
-    lines = text.split('\n')
+    lines = text.split("\n")
+    for i in range(len(lines) - 1):
+        lines[i] = lines[i] + "\n"
     start = 0
     end = 0
     found_start = False
-    for line in lines + ['']:
-        if len(line) < 100 and is_title_case(line):
+    for line in lines + ["Placeholder Title"]:
+        if len(line.strip()) > 0 and len(line) < 100 and is_title_case(line):
             if found_start:
                 return (start, end)
             else:
