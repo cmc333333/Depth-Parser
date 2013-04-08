@@ -24,7 +24,7 @@ def next_section_offsets(text, part):
         return None
 
     start, end = offsets
-    appendix_start = find_appendix_start(text, 'A')
+    appendix_start = find_appendix_start(text)
     supplement_start = find_supplement_start(text)
     if appendix_start != None and appendix_start < end:
         return (start, appendix_start)
