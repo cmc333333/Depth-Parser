@@ -1,7 +1,7 @@
 # vim: set fileencoding=utf-8 :
 import re
 from regs import utils
-from regs.depth.appendix import find_appendix_start
+from regs.depth.appendix.carving import find_appendix_start
 from regs.depth.paragraph import ParagraphParser
 from regs.depth.supplement import find_supplement_start
 from regs.depth import tree

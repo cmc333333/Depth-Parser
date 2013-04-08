@@ -1,4 +1,3 @@
-import re
 from regs.search import find_start
 
 def find_appendix_start(text, appendix='A'):
