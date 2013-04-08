@@ -19,10 +19,9 @@ def find_offsets(text, search_fn):
         return (start, len(text))
 
 def segments(text, offsets_fn, exclude=[]):
-    """
-    Split a block of text into a list of its sub parts. Often this means calling the
-    offsets function repeatedly until there is no more text to process.
-    """
+    """Split a block of text into a list of its sub parts. Often this means
+    calling the offsets function repeatedly until there is no more text to
+    process."""
     segs = []
     seg_id = 0
     remaining_text = text
