@@ -5,7 +5,7 @@ def is_title_case(line):
     """Determine if a line is title-case (i.e. the first letter of every
     word is upper-case. More readable than the equivalent all([]) form."""
     for word in line.split(u' '):
-        if len(word) > 0 and word[0] != word[0].upper():
+        if len(word) > 0 and len(word) > 3 and word[0] != word[0].upper():
             return False
     return True
 

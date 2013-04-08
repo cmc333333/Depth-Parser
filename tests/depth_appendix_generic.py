@@ -23,10 +23,11 @@ class DepthAppendixGenericTest(TestCase):
                 find_next_segment(white_space + title))
     def test_is_title_case(self):
         self.assertTrue(is_title_case("This Is In Title Case"))
+        self.assertTrue(is_title_case("This is in Title Case"))
         self.assertTrue(is_title_case(""))
         self.assertTrue(is_title_case("        Title\n"))
         self.assertFalse(is_title_case("lowercase"))
-        self.assertFalse(is_title_case("This is Mostly Title Case"))
+        self.assertFalse(is_title_case("This Is Mostly in title case"))
     def test_segments(self):
         lines = [
                 "nonsection here",
