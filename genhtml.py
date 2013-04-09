@@ -3,6 +3,7 @@ import re
 from regs.depth.reg_text import build_reg_text_tree
 from regs.depth import tree
 from regs.depth.supplement import find_supplement_start
+from regs.depth.appendix.tree import trees_from
 from regs.depth.interpretation.tree import build as build_interp_tree
 from regs.layers import interpretation
 from regs.layers.terms import build_layer
@@ -19,6 +20,7 @@ interp_tree = build_interp_tree(interp, 1005)
 interp_layer = interpretation.build(interp_tree, 1005)
 term_layer = build_layer(rege_tree)
 
+rege_tree['children'].extend(trees_from(rege, 1005, rege_tree['label']))
 rege_tree['children'].append(interp_tree)
 
 indexed_reg = {}
