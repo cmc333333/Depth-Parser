@@ -12,9 +12,15 @@ def node(text='', children=[], label=None):
     return {'text': text, 'children': children, 'label': label}
 
 def walk(node, fn):
-    """Perform fn for every node in the tree. Pre-order traversal. fn must be a function
-    that accepts a root node."""
+    """Perform fn for every node in the tree. Pre-order traversal. fn must
+    be a function that accepts a root node."""
     results = [fn(node)]
     for child in node['children']:
         results += walk(child, fn)
     return results
+
+def join_text(node):
+    """Join the text of this node and all children"""
+    bits = []
+    walk(node, lambda n: bits.append(n['text']))
+    return ''.join(bits)
