@@ -21,9 +21,10 @@ class LayersTermsTest(TestCase):
         text = u'This has no terms'
         self.assertEqual([], parse_from(text))
     def test_parse_from_quotes(self):
-        #   Note, the first two are normal single quotes; the second are smart quotes
-        text = u'Some "nonterm" and another "nterm" but this one “is a term”, but so is'
-        text += u' “this”.'
+        #   Note, the first two are normal single quotes; the second are
+        #   smart quotes
+        text = u'Some "nonterm" and another "nterm" but this one “is a'
+        text += u' term”, but so is “this”.'
         matches = parse_from(text)
         self.assertEqual(["is a term", "this"], matches)
     def test_children_with_defs(self):
@@ -33,7 +34,8 @@ class LayersTermsTest(TestCase):
         def4 = tree.node(label=tree.label(title="Definition"))
         non1 = tree.node("This has no def")
         non2 = tree.node(label=tree.label(title="No def here"))
-        root = tree.node(children=[def1, non1, def2, non1, def3, non2, def4, non2])
+        root = tree.node(children=[def1, non1, def2, non1, def3, non2, def4, 
+            non2])
         self.assertEqual([def1, def2, def3, def4], children_with_defs(root))
     def test_children_with_defs_2(self):
         children = []
@@ -48,12 +50,16 @@ class LayersTermsTest(TestCase):
     @patch('regs.layers.terms.children_with_defs')
     def test_one_level_layer(self, children_with_defs):
         children_with_defs.return_value = [
-                tree.node(u'This has a “word” and then more', label=tree.label("aaa")),
-                tree.node(u'I have “another” term and “more”', label=tree.label("bbb")),
+                tree.node(u'This has a “word” and then more', 
+                    label=tree.label("aaa")),
+                tree.node(u'I have “another” term and “more”', 
+                    label=tree.label("bbb")),
                 tree.node(u'This has no defs', children=[
-                    tree.node(u'But the child “does”', label=tree.label('ccc')),
+                    tree.node(u'But the child “does”', 
+                        label=tree.label('ccc')),
                     tree.node(children=[
-                        tree.node(u'As do “sub children”', label=tree.label('ddd')),
+                        tree.node(u'As do “sub children”', 
+                            label=tree.label('ddd')),
                         tree.node(u'Has no terms')
                         ]),
                     tree.node(u'Also has no terms')
@@ -73,8 +79,9 @@ class LayersTermsTest(TestCase):
     @patch('regs.layers.terms.parse_from')
     def test_one_level_layer_empty(self, parse_from):
         parse_from.return_value = []
-        root = tree.node(children=[tree.node("definition"), tree.node("definition"),
-            tree.node("definition", children=[tree.node("definition")])])
+        root = tree.node(children=[tree.node("definition"), 
+            tree.node("definition"), tree.node("definition", 
+                children=[tree.node("definition")])])
         layer = one_level_layer(root)
         self.assertEqual({}, layer)
     @patch('regs.layers.terms.parse_from')
@@ -96,14 +103,18 @@ class LayersTermsTest(TestCase):
             tree.node("Definitions", children=[
                 tree.node(u'This has a defined “term” and in it', 
                     label=tree.label('100.2(b)')),
-                tree.node('This parent has no term', label=tree.label("100.2(c)"),
+                tree.node('This parent has no term', 
+                    label=tree.label("100.2(c)"),
                     children=[
-                    tree.node(u'But the “child” does', label=tree.label('100.2(c)(3)')),
+                    tree.node(u'But the “child” does', 
+                        label=tree.label('100.2(c)(3)')),
                     tree.node('Some other node')
                     ])
                 ]),
-            tree.node("No defs", children=[tree.node("None here"), tree.node("either")]),
-            tree.node("Parent has no defs", label=tree.label("100.4"), children=[
+            tree.node("No defs", 
+                children=[tree.node("None here"), tree.node("either")]),
+            tree.node("Parent has no defs", label=tree.label("100.4"), 
+                children=[
                 tree.node(u'This child has no defs'),
                 tree.node(u'But this does have definitions',
                     label=tree.label('100.4(x)'), children=[

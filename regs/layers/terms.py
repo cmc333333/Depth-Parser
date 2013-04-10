@@ -15,7 +15,8 @@ def children_with_defs(node):
     """Find the immediate children of the node which contain definitions."""
     definition_children = []
     for child in node['children']:
-        if 'title' in child['label'] and 'definition' in child['label']['title'].lower():
+        if 'title' in child['label'] and (
+                'definition' in child['label']['title'].lower()):
             definition_children.append(child)
         if 'definition' in child['text'].lower():
             definition_children.append(child)
@@ -32,7 +33,8 @@ def one_level_layer(node):
     return layer
 
 def build_layer(reg_root):
-    """Run one_level_layer for each node in the tree, linearize the results."""
+    """Run one_level_layer for each node in the tree, linearize the
+    results."""
     layer = {}
     def add_to_layer(node):
         sublayer = one_level_layer(node)
