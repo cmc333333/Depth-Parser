@@ -7,6 +7,7 @@ from regs.depth.appendix.tree import trees_from
 from regs.depth.interpretation.tree import build as build_interp_tree
 from regs.layers import interpretation
 from regs.layers.terms import build_layer
+from regs.layers.model_form import build as model_form_layer
 from xml.sax.saxutils import quoteattr
 
 f = codecs.open('rege.txt', encoding='utf-8')
@@ -22,6 +23,7 @@ term_layer = build_layer(rege_tree)
 
 rege_tree['children'].extend(trees_from(rege, 1005, rege_tree['label']))
 rege_tree['children'].append(interp_tree)
+forms = model_form_layer(rege_tree)
 
 indexed_reg = {}
 def index_tree(tree):
@@ -41,6 +43,8 @@ def as_text(tree):
 
 f = codecs.open('rege.html', 'w', encoding='utf-8')
 f.write(u'<html><meta charset="utf-8">')
+f.write(u'<head><style>.model-form { ')
+f.write(u'border: solid thin; font-family:monospace }</style></head>')
 
 import StringIO
 
@@ -60,8 +64,10 @@ def print_node(node, relevant_terms = None):
     sorted_terms.reverse()
 
     if lab in interp_layer and 'interpretation' in interp_layer[lab]:
-        doc.write("<a title=__TITLE__%d" % len(titles) + " href='#not-done'>?</a>")
-        titles.append(quoteattr(as_text(indexed_interp[interp_layer[lab]['interpretation']]).strip()))
+        doc.write("<a title=__TITLE__%d" % len(titles) + 
+                " href='#not-done'>?</a>")
+        titles.append(quoteattr(as_text(
+            indexed_interp[interp_layer[lab]['interpretation']]).strip()))
     if 'title' in node['label']:
         level = len(node['label']['parts'])
         doc.write('<h%d>' % level)
@@ -69,18 +75,33 @@ def print_node(node, relevant_terms = None):
         doc.write('</h%d>' % level)
         
     text = node['text']
+    if lab in forms:
+        start, end = forms[lab]['offsets'][0]
+        bits = []
+        tree.walk(node, lambda n: bits.append(n['text']))
+        text = ''.join(bits)
+        doc.write(text[:start])
+        doc.write('<div class="model-form">')
+        doc.write(text[start:end].replace('\n', '<br />'))
+        doc.write('</div>')
+        doc.write(text[end:])
+        return
+
+
     #   interpretations
     if lab in interp_layer and 'keyterms' in interp_layer[lab]:
         for term, interp in interp_layer[lab]['keyterms']:
-            text = re.sub(r'(?i)\b' + term + r'\b', term + "<a title=__TITLE__%d href='#not-done'>" % len(titles) + 
+            text = re.sub(r'(?i)\b' + term + r'\b', term + 
+                    "<a title=__TITLE__%d href='#not-done'>" % len(titles) + 
                     "?</a>", text)
             titles.append(quoteattr(as_text(indexed_interp[interp]).strip()))
     #   definitions
     for term in sorted_terms:
         text = re.sub(r'(?i)\b' + term + r'\b', 
-                '<a title=__TITLE__%d href="#not-done">' % len(titles) + term + '</a>', 
-                text)
-        titles.append(quoteattr(as_text(indexed_reg[relevant_terms[term]]).strip()))
+                '<a title=__TITLE__%d href="#not-done">' % len(titles) + 
+                term + '</a>', text)
+        titles.append(quoteattr(as_text(
+            indexed_reg[relevant_terms[term]]).strip()))
     doc.write(text)
     if node['children']:
         doc.write('<ol>')
