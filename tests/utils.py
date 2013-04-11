@@ -20,3 +20,5 @@ class Utils(TestCase):
         title = "This is a title"
         body = "Here is some text that follows\nnewlines\n\n\nabout in the body"
         self.assertEqual((title, "\n" + body), title_body(title + "\n" + body))
+    def test_flatten(self):
+        self.assertEqual(['a', 'b', 'c'], flatten([['a', 'b'], ['c'], []]))
