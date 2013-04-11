@@ -14,10 +14,23 @@ def node(text='', children=[], label=None):
 def walk(node, fn):
     """Perform fn for every node in the tree. Pre-order traversal. fn must
     be a function that accepts a root node."""
-    results = [fn(node)]
+    result = fn(node)
+    if result != None:
+        results = [result]
+    else:
+        results = []
     for child in node['children']:
         results += walk(child, fn)
     return results
+
+def find(root, label):
+    """Search through the tree to find the node with this label."""
+    def check(node):
+        if node['label']['text'] == label:
+            return node
+    response = walk(root, check)
+    if response:
+        return response[0]
 
 def join_text(node):
     """Join the text of this node and all children"""
