@@ -15,11 +15,10 @@ rege_tree = build_reg_text_tree(rege, 1005)
 interp_tree = build_interp_tree(interp, 1005)
 appendix_trees = trees_from(rege, 1005, rege_tree['label'])
 
+rege_tree['children'].extend(appendix_trees)
+rege_tree['children'].append(interp_tree)
+
 f = codecs.open('rege.json', 'w', encoding='utf-8')
-f.write(json.dumps({
-    "reg_text": rege_tree, 
-    'appendices': appendix_trees,
-    'interpretation': interp_tree
-    }))
+f.write(json.dumps(rege_tree))
 f.close()
 
