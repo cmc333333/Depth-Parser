@@ -44,7 +44,7 @@ def term_structs(text, term_by_refs):
     existing_defs = []
     for term, ref in term_by_refs:
         offsets = [(m.start(), m.end()) for m in
-                re.finditer(re.escape(term), text)]
+                re.finditer(re.escape(term), text.lower())]
         safe_offsets = []
         for start, end in offsets:
             if any(start >= e[0] and start <= e[1] for e in existing_defs):
@@ -70,7 +70,8 @@ def tighten_scope(structs, reference):
     return final_structs
 
 def referencify(existing, definitions):
-    """Add the definitions only once to the layer."""
+    """Add all the definitions to the definition list. Return a list of
+    references to those definitions"""
     term_refs = []
     for term, ref, definition in definitions:
         term_ref = term + ':' + ref
@@ -87,9 +88,9 @@ def add_to_layer(node, layer):
     """Find all of the terms that apply to this node and its children. For
     this and all children, add their term structs to the layer."""
     definitions = tree.walk(node, applicable_definitions)
+    definitions = flatten(definitions)
     if not definitions:
         return
-    definitions = flatten(definitions)
     term_by_refs = referencify(layer['referenced'], definitions)
     def per_node(child):
         structs = term_structs(child['text'], term_by_refs)
