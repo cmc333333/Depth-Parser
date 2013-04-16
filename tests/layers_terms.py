@@ -99,6 +99,13 @@ class LayersTermsTest(TestCase):
         self.assertEqual([(30,34)], structs[1]['offsets'])
         self.assertEqual('c', structs[2]['ref'])
         self.assertEqual([(42,46), (55,59)], structs[2]['offsets'])
+    def test_term_structs_word_part(self):
+        """If a defined term is part of another word, don't include it"""
+        term_by_refs = [('act', 'a')]
+        text = "I am about to act on this transaction."
+        structs = term_structs(text, term_by_refs)
+        self.assertEqual(1, len(structs))
+        self.assertEqual(1, len(structs[0]['offsets']))
     def test_tighten_scope(self):
         reference = {
                 'a': {'term': 'apple', 'text': 'Outer scope'},

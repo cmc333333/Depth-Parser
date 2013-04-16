@@ -44,7 +44,7 @@ def term_structs(text, term_by_refs):
     existing_defs = []
     for term, ref in term_by_refs:
         offsets = [(m.start(), m.end()) for m in
-                re.finditer(re.escape(term), text.lower())]
+                re.finditer(ur'\b' + re.escape(term) + ur'\b', text.lower())]
         safe_offsets = []
         for start, end in offsets:
             if any(start >= e[0] and start <= e[1] for e in existing_defs):
