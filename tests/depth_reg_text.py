@@ -27,7 +27,7 @@ class DepthRegTextTest(TestCase):
         self.assertEqual(3, len(reg['children']))
         (sect1_tree, sect2_tree, sect4_tree) = reg['children']
 
-        self.assertEqual(tree.label("204.1", ["204", "1"], sect1_title),
+        self.assertEqual(tree.label("204-1", ["204", "1"], sect1_title),
                 sect1_tree['label'])
         self.assertEqual("", sect1_tree['text'].strip())
         self.assertEqual(3, len(sect1_tree['children']))
@@ -35,12 +35,12 @@ class DepthRegTextTest(TestCase):
         self.assertEqual(2, len(sect1_tree['children'][1]['children']))
         self.assertEqual(0, len(sect1_tree['children'][2]['children']))
 
-        self.assertEqual(tree.label("204.2", ["204", "2"], sect2_title),
+        self.assertEqual(tree.label("204-2", ["204", "2"], sect2_title),
                 sect2_tree['label'])
         self.assertEqual(sect2, sect2_tree['text'].strip())
         self.assertEqual(0, len(sect2_tree['children']))
 
-        self.assertEqual(tree.label("204.4", ["204", "4"], sect4_title),
+        self.assertEqual(tree.label("204-4", ["204", "4"], sect4_title),
                 sect4_tree['label'])
         self.assertEqual(u"Others", sect4_tree['text'].strip())
         self.assertEqual(1, len(sect4_tree['children']))

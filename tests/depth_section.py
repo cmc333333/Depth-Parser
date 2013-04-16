@@ -37,9 +37,9 @@ class DepthSectionTest(TestCase):
         line2 = "\nThis (a) is a good (1) test (2) of (3) some (b) body."
         tree = build_section_tree(line1+line2, 201)
         p_tree = regParser.build_paragraph_tree(line2, 
-                label=label("201.20", ["201", "20"]))
+                label=label("201-20", ["201", "20"]))
         for key in p_tree:
             if key != 'label':
                 self.assertTrue(key in tree)
                 self.assertEqual(p_tree[key], tree[key])
-        self.assertEqual(tree['label'], label("201.20", ["201", "20"], line1))
+        self.assertEqual(tree['label'], label("201-20", ["201", "20"], line1))

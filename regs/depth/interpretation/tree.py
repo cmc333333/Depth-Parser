@@ -5,10 +5,7 @@ from regs.depth.interpretation import carving
 from regs.layers.links.interp_internal import comment_citations
 
 def _mk_label(old_label, next_part):
-    if old_label['text'].endswith(')'):
-        return tree.extend_label(old_label, '-' + next_part, next_part)
-    else:
-        return tree.extend_label(old_label, '.' + next_part, next_part)
+    return tree.extend_label(old_label, '-' + next_part, next_part)
 #   Can only be preceded by white space or a start of line
 interpParser = ParagraphParser(r"(?<![^\s])%s\.", _mk_label)
 

@@ -9,7 +9,7 @@ from regs.layers.links.reg_internal import internal_citations
 from regs.search import find_offsets, find_start, segments
 
 def _mk_label(old_label, next_part):
-    return tree.extend_label(old_label, '(' + next_part + ')', next_part)
+    return tree.extend_label(old_label, '-' + next_part, next_part)
 
 regParser = ParagraphParser(r"\(%s\)", _mk_label)
 
@@ -45,7 +45,7 @@ def build_section_tree(text, part):
 
     exclude = internal_citations(text)
     section = re.search(r'%d\.(\d+) ' % part, title).group(1)
-    label = tree.label("%d.%s" % (part, section), [str(part), section])
+    label = tree.label("%d-%s" % (part, section), [str(part), section])
     p_tree = regParser.build_paragraph_tree(text, exclude=exclude, label=label)
 
     p_tree['label']['title'] = title

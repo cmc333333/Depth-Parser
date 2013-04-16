@@ -38,19 +38,19 @@ class DepthInterpretationTreeTest(TestCase):
         self.assertEqual(3, len(node['children']))
 
         node = a_tree['children'][1]['children'][0]
-        self.assertEqual(tree.label("(b)-2.i", ["(b)", "2", "i"]), 
+        self.assertEqual(tree.label("(b)-2-i", ["(b)", "2", "i"]), 
                 node['label'])
         self.assertEqual(depth2i, node['text'])
         self.assertEqual(0, len(node['children']))
 
         node = a_tree['children'][1]['children'][1]
-        self.assertEqual(tree.label("(b)-2.ii", ["(b)", "2", "ii"]), 
+        self.assertEqual(tree.label("(b)-2-ii", ["(b)", "2", "ii"]), 
                 node['label'])
         self.assertEqual(depth2ii, node['text'])
         self.assertEqual(0, len(node['children']))
 
         node = a_tree['children'][1]['children'][2]
-        self.assertEqual(tree.label("(b)-2.iii", ["(b)", "2", "iii"]), 
+        self.assertEqual(tree.label("(b)-2-iii", ["(b)", "2", "iii"]), 
                 node['label'])
         self.assertEqual(depth2iii, node['text'])
         self.assertEqual(0, len(node['children']))
